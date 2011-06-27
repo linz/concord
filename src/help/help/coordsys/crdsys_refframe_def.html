@@ -1,0 +1,59 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="COORDSYS.DEF, reference frame">
+<title>Reference frame definition format</title>
+<link rel="stylesheet" type="text/css" href="../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="crdsys_refframe_def"></a>Reference frame definition format</h1>
+
+<p>The reference frame definition specifies the ellipsoid for a reference frame, and the location, orientation, and scale of coordinates relative to a reference system.  The reference system is arbitrary.  Conversions can only be done between coordinates which have the same reference system. </p>
+
+<p>Reference frame definitions have the following format in the coordinate system definition file: </p>
+
+<pre><code>code description ELLIPSOID ellipsoid_code refcode 
+                       Tx Ty Tz Rx Ry Rz scale</code></pre>
+
+<p>where</p>
+
+<p><i>code</i> is an identifier for the reference frame.  This may contain letters, numbers, and the underscore character.  It cannot contain blanks.</p>
+
+<p><i>description</i> is a quoted text description of the reference frame</p>
+
+<p><i>ellipsoid_code</i> is the code for the ellipsoid associated with the reference frame.  This code must have been defined in an earlier [ellipsoids] section of the file.</p>
+
+<p><i>refcode</i> is a code identifying the reference system in terms of which translations, rotations, and scale are defined.  This need not be  the same a reference frame in the coordinate system file, but it must be the same for all reference frames between which coordinate conversions are required.</p>
+
+<p><i>Tx Ty Tz</i> is XYZ position of the origin of the reference frame in the reference system (i.e. the translation that must be applied to coordinates to convert them back to the reference system).  The coordinates are in metres.</p>
+
+<p><i>Rx Ry Rz</i> are the rotations about the X, Y, and Z axes required to convert coordinates from the reference frame back to the reference system.   The rotations are in arc seconds.</p>
+
+<p><i>scale</i> is the scale difference between the reference frame and the reference system.  It is applied to coordinates to convert them back to the reference system.  The scale is defined in parts per million.</p>
+
+<p>Here is an example of the reference frames section of the coordinate system definition file:</p>
+
+<pre><code>[reference_frames]
+ 
+WGS84  "World Geodetic System 1984" &amp;
+    ELLIPSOID WGS84 &amp;
+    WGS84 0.0 0.0 0.0 0.0 0.0 0.0 0.0
+
+NZGD49 "New Zealand Geodetic Datum 1949" &amp;
+    ELLIPSOID INTERNATIONAL &amp;
+    WGS84 59.47 -5.04 187.44 -0.47 0.10 -1.024 -4.5993
+</code></pre>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="crdsys_file_format.html">Coordinate system file format</a></p>
+
+</div>
+</body>
+</html>

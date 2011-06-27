@@ -1,0 +1,90 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<HTML>
+<HEAD>
+</HEAD><BODY>
+<OBJECT type="text/site properties">
+	<param name="ImageType" value="Folder">
+</OBJECT>
+<UL>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="concord - coordinate conversion program">
+		<param name="Local" value="help/programs/concord/index.html">
+		</OBJECT>
+	<UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="Concord error messages">
+			<param name="Local" value="help/programs/concord/error.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="Examples of concord">
+			<param name="Local" value="help/programs/concord/example.html">
+			</OBJECT>
+	</UL>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Coordinate systems in concord">
+		<param name="Local" value="help/coordsys/index.html">
+		</OBJECT>
+	<UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="What is a coordinate system">
+			<param name="Local" value="help/coordsys/whatiscoordsys.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="Coordinate system definition format">
+			<param name="Local" value="help/coordsys/crdsys_crdsys_def.html">
+			</OBJECT>
+		<UL>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="Ellipsoid definition format">
+				<param name="Local" value="help/coordsys/crdsys_ellipsoid_def.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="Reference frame definition format">
+				<param name="Local" value="help/coordsys/crdsys_refframe_def.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="Equatorial Mercator projection definition format">
+				<param name="Local" value="help/coordsys/crdsys_em.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="Coordinate system file format">
+				<param name="Local" value="help/coordsys/crdsys_file_format.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="Gnomic projection definition format">
+				<param name="Local" value="help/coordsys/crdsys_gn.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="Lambert Conformal Conic projection definition">
+				<param name="Local" value="help/coordsys/crdsys_lcc.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="New Zealand Map Grid definition format">
+				<param name="Local" value="help/coordsys/crdsys_nzmg.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="Polar Stereographic projection definition format">
+				<param name="Local" value="help/coordsys/crdsys_ps.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="Transverse Mercator projection definition format">
+				<param name="Local" value="help/coordsys/crdsys_tm.html">
+				</OBJECT>
+		</UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="Standard coordinate systems provided with concord">
+			<param name="Local" value="help/coordsys/crdsys_standard_list.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="Geoid grid files">
+			<param name="Local" value="help/coordsys/geoid.html">
+			</OBJECT>
+		<UL>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="Grid file format">
+				<param name="Local" value="help/coordsys/gridfile_c.html">
+				</OBJECT>
+		</UL>
+	</UL>
+</UL>
+</BODY></HTML>
