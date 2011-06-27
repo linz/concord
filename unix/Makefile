@@ -81,7 +81,7 @@ bin/concord: $(OBJECTS)
 	cp $(SRC)/coordsys/* bin
 	
 test: bin/concord
-	cd ../test && ./test.sh
+	cd ../test && sh test.sh
 
 clean:
 	rm -rf bin
