@@ -77,7 +77,7 @@ CFLAGS = -I$(SRC)/snaplib -I$(SRC)/snaplib/dbl4
 bin/concord: $(OBJECTS)
 	rm -rf bin
 	mkdir bin
-	$(CC) -lm -o bin/concord $(OBJECTS)
+	$(CC) $(OBJECTS) -lm -o bin/concord
 	cp $(SRC)/coordsys/* bin
 	
 test: bin/concord
