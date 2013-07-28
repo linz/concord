@@ -301,7 +301,7 @@ static int read_string( FILE *input, char separator, char *string, int nch )
         {
             if(c == ' ' || c == '\t' ) break;
         }
-        if( c == '\n' || c == EOF) break;
+        if( c=='\r' || c == '\n' || c == EOF) break;
         if (i<nch) {*string++ = c; i++;}
         c = getc(input);
     }
