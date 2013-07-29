@@ -120,7 +120,7 @@ int define_coord_conversion_epoch( coord_conversion *conv,
        deformation in one hit rather than to and from base epoch */
     if( ! conv->conv_rf )
     {
-        conv->epochconv = conv->epochto;
+        conv->epochconv = to->epoch;
     }
     else if( has_deformation_model(to) )
     {
