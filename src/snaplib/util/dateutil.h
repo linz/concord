@@ -22,6 +22,7 @@
 double snap_date( int year, int month, int day );
 double snap_datetime( int year, int month, int day, int hour, int min, int sec );
 double snap_datetime_now();
+double snap_datetime_parse( const char *definition, const char *format );
 
 /* Conversion to other date formats */
 double date_as_year( double snapdate );

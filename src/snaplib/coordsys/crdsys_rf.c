@@ -38,8 +38,8 @@ void init_ref_frame( ref_frame *rf )
     rf->ratio = 1.0 + rf->scale * 1.0e-6;
 }
 
-ref_frame *create_ref_frame( char *code, char *name, ellipsoid *el,
-                             char *refcode, double txyz[3], double rxyz[3], double scale )
+ref_frame *create_ref_frame( const char *code, const char *name, ellipsoid *el,
+                             const char *refcode, double txyz[3], double rxyz[3], double scale )
 {
 
     ref_frame *rf;

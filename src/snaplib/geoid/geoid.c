@@ -35,10 +35,10 @@ static char rcsid[]="$Id: geoid.c,v 1.5 2004/04/22 02:34:33 ccrook Exp $";
 
 
 
-static char *get_geoid_filename( char *geoidname )
+static const char *get_geoid_filename( const char *geoidname )
 {
-    char *geoid = "geoid";
-    char *filename = NULL;
+    const char *geoid = "geoid";
+    const char *filename = NULL;
 
     /* If name explicitely given, then use that. */
     if( geoidname )
@@ -64,22 +64,22 @@ static char *get_geoid_filename( char *geoidname )
     return filename;
 }
 
-char *create_geoid_filename( char *geoidname )
+const char *create_geoid_filename( const char *geoidname )
 {
-    char *filename = get_geoid_filename( geoidname );
+    const char *filename = get_geoid_filename( geoidname );
     if( ! file_exists(filename) ) return NULL;
     return copy_string( filename );
 }
 
-void delete_geoid_filename( char *filename )
+void delete_geoid_filename( const char *filename )
 {
-    check_free( filename );
+    check_free( (void *) filename );
 }
 
-geoid_def *create_geoid_grid( char *source )
+geoid_def *create_geoid_grid( const char *source )
 {
     int status;
-    char *filename;
+    const char *filename;
     geoid_def *gd = NULL;
     grid_def *grd;
     coordsys *cs = 0;
@@ -93,7 +93,7 @@ geoid_def *create_geoid_grid( char *source )
     }
     else
     {
-        char *cscode = grd_coordsys_def( grd );
+        const char *cscode = grd_coordsys_def( grd );
         cs = load_coordsys( cscode );
         if( ! cs )
         {
@@ -134,7 +134,7 @@ void delete_geoid_grid( geoid_def *gd )
     check_free( gd );
 }
 
-char *get_geoid_model( geoid_def *gd )
+const char *get_geoid_model( geoid_def *gd )
 {
     if( !gd ) return NULL;
     return grd_title( gd->grd, 1 );
@@ -152,7 +152,7 @@ void print_geoid_header( geoid_def *gd, FILE *out, int width, char *prefix )
     if( !gd->grd ) return;
     for( i = 0; i++ < 3; )
     {
-        char *s = grd_title(gd->grd, i);
+        const char *s = grd_title(gd->grd, i);
         if( !s ) continue;
         if( prefix ) fputs( prefix, out );
         if( width > 0 )

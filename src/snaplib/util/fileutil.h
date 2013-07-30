@@ -17,11 +17,11 @@
 #ifndef _FILEUTIL_H
 #define _FILEUTIL_H
 
-int path_len( char *base, int want_name );
-int file_exists( char *file );
+int path_len( const char *base, int want_name );
+int file_exists( const char *file );
 char *build_filespec( char *spec, int nspec,
-                      char *dir, char *name, char *dflt_ext );
-char *find_image( char *argv0 );
+                      const char *dir, const char *name, const char *dflt_ext );
+char *find_image( const char *argv0 );
 
 #ifndef UNIX
 #define PATH_SEPARATOR '\\'
@@ -42,9 +42,12 @@ char *find_image( char *argv0 );
 #define FF_TRYCURDIR  8
 #define FF_TRYALL    15
 
-void set_find_file_directories( char *progname, char *basedir, char *homeenv );
-char *find_file( char *name, char *dflt_ext, int options );
-char *find_file_from_base( char *base, char *name, char *dflt_ext );
+void set_find_file_directories( const char *progname, const char *basedir, const char *homeenv );
+void set_find_file_prog_dir( const char *progname );
+void set_find_file_home_dir( const char *homedir );
+void set_find_file_base_dir( const char *basefile );
+char *find_file( const char *name, const char *dflt_ext, int options );
+char *find_file_from_base( const char *base, const char *name, const char *dflt_ext );
 FILE *snaptmpfile( void );
 
 

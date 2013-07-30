@@ -81,7 +81,7 @@ static int rf_grid_describe(  ref_frame *rf, output_string_def *os )
     if( sts != OK ) return sts;
     for( i = 1; i <= 3; i++ )
     {
-        char *text = grd_title(gd->grid,i);
+        const char *text = grd_title(gd->grid,i);
         if( text && text[0] )
         {
             write_output_string(os,"    ");
@@ -103,13 +103,18 @@ static int rf_grid_calc( ref_frame *rf, double lon, double lat, double epoch, do
     if( epoch == 0 ) return OK;
     epoch -= gd->refepoch;
     if( epoch == 0 ) return OK;
-    return grd_calc_linear( gd->grid, lon*RTOD, lat*RTOD, denu );
+    sts = grd_calc_linear( gd->grid, lon*RTOD, lat*RTOD, denu );
+    denu[0] *= epoch;
+    denu[1] *= epoch;
+    denu[2] *= epoch;
+    return sts;
 }
 
 static int rf_grid_apply( ref_frame *rf,  double llh[3], double epochfrom, double epochto )
 {
     double denu[3];
     int sts;
+    int i;
     ref_deformation *def = rf->def;
     ref_deformation_grid *gd = (ref_deformation_grid *)(def->data);
     if( epochfrom == 0 ) epochfrom = gd->refepoch;
@@ -117,8 +122,10 @@ static int rf_grid_apply( ref_frame *rf,  double llh[3], double epochfrom, doubl
     if( epochfrom == epochto ) return OK;
     sts = rf_grid_open_file( gd );
     if( sts != OK ) return sts;
+	denu[0] = denu[1] = denu[2] = 0.0;
     sts = grd_calc_linear( gd->grid, llh[CRD_LON]*RTOD, llh[CRD_LAT]*RTOD, denu );
     if( sts != OK ) return sts;
+    for( i = 0; i < 3; i++ ) denu[i] *= (epochto-epochfrom);
     return rf_apply_enu_deformation_to_llh( rf, llh, denu );
 }
 

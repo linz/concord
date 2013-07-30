@@ -119,7 +119,7 @@ static void register_lists( void )
 }
 
 
-static void add_crdsys_item( int type, long id, char *code, char *desc )
+static void add_crdsys_item( int type, long id, const char *code, const char *desc )
 {
     void *list;
     crdsys_list_item *item;

@@ -97,7 +97,7 @@ static int check_header( FILE *bin, long *indexloc )
     return version;
 }
 
-static int create_grid_def( grid_def **defr, char *filename, short dimension )
+static int create_grid_def( grid_def **defr, const char *filename, short dimension )
 {
     FILE *bin;
     grid_def *def;
@@ -312,15 +312,15 @@ static short load_row2_dim( grid_def *def, long *data )
         if( fread(def->loadbuffer,bytes,i,def->bin) != i) return INVALID_DATA;
         if( bytes == 1 )
         {
-            pc = def->loadbuffer;
+            pc = (signed char *) def->loadbuffer;
         }
         else if ( bytes == 2 )
         {
-            ps = def->loadbuffer;
+            ps = (short *) def->loadbuffer;
         }
         else
         {
-            pl = def->loadbuffer;
+            pl = (long *) def->loadbuffer;
         }
 
         /* Store the valyes in the data array, accounting for differences if
@@ -587,7 +587,7 @@ static int calc_grid_linear( grid_def *def, double x, double y, double *value )
 }
 
 
-int grd_open_grid_file( char *filename, int dimension, grid_def **grid )
+int grd_open_grid_file( const char *filename, int dimension, grid_def **grid )
 {
     grid_def *def;
     short status;
@@ -613,12 +613,12 @@ int grd_calc_linear( grid_def *grd, double x, double y, double *value )
     return calc_grid_linear( grd, x, y, value );
 }
 
-char *grd_coordsys_def( grid_def *grd )
+const char *grd_coordsys_def( grid_def *grd )
 {
     return grd->crdsys;
 }
 
-char *grd_title( grid_def *grd, int titleno )
+const char *grd_title( grid_def *grd, int titleno )
 {
     char *desc;
     if( titleno > 3 ) titleno = 3;

@@ -46,6 +46,9 @@ static int default_reclen = 256;
 
 #define ISSPACE(x) ((x)==' ' || (x)=='\r' || (x)=='\n' || (x)=='\t' || (x)=='\x1A')
 
+static char *utf8_bom = "\xEF\xBB\xBF";
+static char *utf16_bom = "\xFF\xFE\x46";
+
 int df_data_file_default_reclen( int newlen )
 {
     int oldlen = default_reclen;
@@ -53,11 +56,15 @@ int df_data_file_default_reclen( int newlen )
     return oldlen;
 }
 
-DATAFILE *df_open_data_file( char *fname, char *description )
+DATAFILE *df_open_data_file( const char *fname, const char *description )
 {
     FILE *f;
     DATAFILE *d;
     char msg[80];
+    int nch;
+    char unicode;
+    char binary;
+    int i;
 
     f = fopen( fname, "r" );
     if( f == NULL )
@@ -69,6 +76,34 @@ DATAFILE *df_open_data_file( char *fname, char *description )
         }
         return NULL;
     }
+
+    nch = fread(msg,1,80,f);
+    unicode = 0;
+    binary = 0;
+    if( nch >= strlen(utf8_bom) &&memcmp(msg,utf8_bom,strlen(utf8_bom))==0) unicode = 1;
+    if( nch >= strlen(utf16_bom) &&memcmp(msg,utf16_bom,strlen(utf16_bom))==0) unicode = 2;
+    if( ! unicode )
+    {
+        for( i = 0; i < nch; i++ )
+        {
+            if( msg[i] == 0 || (msg[i] & '\x80')) { binary=1; break; }
+        }
+    }
+    if( unicode )
+    {
+        fclose(f);
+        sprintf(msg,"Cannot use unicode file - convert to ASCII");
+        handle_error(FILE_OPEN_ERROR,msg,fname);
+        return NULL;
+    }
+    if( binary )
+    {
+        fclose(f);
+        sprintf(msg,"File appears to contain binary data");
+        handle_error(FILE_OPEN_ERROR,msg,fname);
+        return NULL;
+    }
+    fseek(f,0L,SEEK_SET);
 
 
     d = (DATAFILE *) check_malloc( sizeof(DATAFILE) +  strlen(fname) + 1 );
@@ -82,6 +117,9 @@ DATAFILE *df_open_data_file( char *fname, char *description )
     d->startloc = 0;
     d->reclineno = 0;
     d->inrec[0] = 0;
+    d->inrecptr = d->inrec;
+    d->lastrecptr = d->inrec;
+    d->unicode = 0;
     d->errcount = 0;
     d->comment_char = COMMENT_CHR;
     d->continuation_char = CONTINUATION_CHR;
@@ -143,186 +181,72 @@ int df_skip_to_blank_line( DATAFILE *d )
     return NO_MORE_DATA;
 }
 
+static void df_expand_buffer( DATAFILE *d )
+{
+    d->maxreclen *= 2;
+    d->inrec = (char *) check_realloc( d->inrec, d->maxreclen );
+}
 
 int df_read_data_file( DATAFILE *d )
 {
-    int nch;
-    char *inrec;
-    char *i, *lastch, *contch;
-    char newline, skipped;
-    char prevblank, continued;
-    int c;
-
-    lastch = NULL;
+    int eof = 0;
 
     d->startlineno = d->lineno;
     d->startloc = ftell( d->f );
-
-    while( !lastch )
+    d->inrec[0] = 0;
+    d->reclineno = 0;
+        
+    // Until we get to a non-blank line...
+    while( ! d->inrec[0] && ! eof)
     {
-
-        nch = d->maxreclen;
-        inrec = d->inrecptr = d->lastrecptr = d->inrec;
+        int offset = 0;
+        int continued = 1;
+        char *line;
         d->reclineno = 0;
 
-        continued = 1;
-
-        while ( continued )
+        while ( continued && ! eof )
         {
-
-            newline = 0;
-            skipped = 0;
-            prevblank = 1;
-            contch = 0;
-
-            if( nch > 1 )
+            int lineoffset = offset;
+            while( 1 )
             {
-
-                if( fgets( inrec, nch, d->f ) == NULL )
-                {
-                    inrec[0] = 0;
-                    return NO_MORE_DATA;
-                }
-
-                /* Scan through the string that has been read.  This is to achieve
-                   three things...
-
-                   1) Identify comments and blank out any following text
-
-                   2) Identify whether the record is to be continued (i.e the
-                       last non-blank thing on the line (apart from comments) is
-                       a continuation character delimited by whitespace
-
-                   3) Identify whether a newline has been reached.  If not the record
-                       is too long for the buffer, and the rest of the line is
-                       terminated.
-
-                */
-
-                for( i = inrec; *i; i++ )
-                {
-
-                    if( *i == '\n' )
-                    {
-                        newline = 1;
-                        break;
-                    }
-
-                    else if( skipped )
-                    {
-                        continue;
-                    }
-
-                    else if( ISSPACE(*i) )
-                    {
-                        prevblank = 1;
-                    }
-
-                    else
-                    {
-                        if( *i == d->comment_char )
-                        {
-                            skipped = 1;
-                        }
-
-                        else if( *i == d->continuation_char && prevblank )
-                        {
-                            contch = i;
-                        }
-
-                        else
-                        {
-                            lastch = i;
-                            contch = 0;
-                        }
-                        prevblank = 0;
-                    }
-                }
-
+                char *start = d->inrec+offset;
+                if( ! fgets( start, d->maxreclen-offset, d->f )) { eof = 1; break; }
+                int len = strlen(start);
+                if( ! len ) break;
+                if( start[len-1] == '\n' ) break;
+                df_expand_buffer(d);
+                offset += len;
             }
-
-
-            /* If we didn't reach the newline, then read the remainder of the
-               line.  We still need to check for continuation... */
-
-
-            continued = contch ? 1 : 0;
-
-            if( !newline ) while( (c = fgetc(d->f)) != EOF && c != '\n' )
-                {
-
-                    if( c  == '\n' )
-                    {
-                        break;
-                    }
-
-                    else if( skipped )
-                    {
-                        continue;
-                    }
-
-                    else if( ISSPACE(c) )
-                    {
-                        prevblank = 1;
-                    }
-
-                    else
-                    {
-                        if( c == d->comment_char )
-                        {
-                            skipped = 1;
-                        }
-
-                        else if( c == d->continuation_char && prevblank )
-                        {
-                            continued = 1;
-                        }
-
-                        else
-                        {
-                            continued = 0;
-                            contch = 0;
-                        }
-                        prevblank = 0;
-                    }
-                }
-
-            /* Increment the line number in the file */
-
             d->lineno++;
-            if( !d->reclineno ) d->reclineno = d->lineno;
-
-            /* Now need to make adjustment for continuation */
-
-            if( continued )
+            if( ! d->reclineno ) d->reclineno = d->lineno;
+            // Remove everything after a comment character
+            line = d->inrec+lineoffset;
+            if( d->comment_char )
             {
-
-                if( contch )
-                {
-                    nch -= contch - inrec;
-                    inrec = contch;
-                }
-
-                else
-                {
-                    nch = 0;
-                }
-
+                char *end = strchr(line,d->comment_char);
+                if( end ) *end = 0;
             }
-
+            // Trim whitespace
+            int nch = strlen(line);
+            while( nch-- && isspace(line[nch])){ line[nch] = 0; }
+            offset = lineoffset + nch;
+            // Check for line continuation
+            if( nch >= 1 && line[nch] == d->continuation_char && isspace(line[nch-1]))
+            {
+                line[offset] = 0;
+            }
+            else
+            {
+                continued = 0;
+            }
         }
-
-        /* If the line was blank get the next, otherwise break */
-
-        if( lastch )
-        {
-            *++lastch = 0;
-            break;
-        }
-
+        // Retrim in case continuation only adds blanks
+        line = d->inrec;
+        while( offset > 0 && isspace(line[offset])) { line[offset--] = 0; }
     }
 
-    return OK;
+    d->inrecptr = d->lastrecptr = d->inrec;
+    return d->inrec[0] ? OK : NO_MORE_DATA;
 }
 
 char *df_rest_of_line( DATAFILE *d )
@@ -331,7 +255,7 @@ char *df_rest_of_line( DATAFILE *d )
 }
 
 #if 0
-static int send_datafile_error( void *src, int status, char *message )
+static int send_datafile_error( void *src, int status, const char *message )
 {
     DATAFILE *d = (DATAFILE *) src;
     return df_data_file_error( d, status, message );
@@ -344,7 +268,7 @@ input_string_def *df_input_string( DATAFILE *d )
     d->instr.ptr = d->inrecptr;
     d->instr.sourcename = d->fname;
     d->instr.source = (void *) d;
-    d->instr.report_error = df_data_file_error;
+    d->instr.report_error = (input_string_errfunc) df_data_file_error;
     return &d->instr;
 }
 
@@ -431,7 +355,7 @@ int df_read_int( DATAFILE *d, int *v )
 int df_read_short( DATAFILE *d, short *v )
 {
     char field[30], chk[2];
-    int i;
+    short i;
     chk[0]=0;
     if( !df_read_field( d, field, 30 ) ) return 0;
     if( sscanf( field, "%hd%1s", &i, chk ) < 1 || chk[0] ) return 0;
@@ -566,12 +490,12 @@ int df_end_of_line( DATAFILE *d )
 }
 
 
-int df_data_file_error( DATAFILE *d, int sts, char *errmsg )
+int df_data_file_error( DATAFILE *d, int sts, const char *errmsg )
 {
     char fmsg[100];
     sprintf(fmsg,"Line: %ld  File: %.60s", d->reclineno, d->fname );
     handle_error(sts,errmsg,fmsg );
-    d->errcount++;
+    if( sts > WARNING_ERROR ) d->errcount++;
     return sts;
 }
 

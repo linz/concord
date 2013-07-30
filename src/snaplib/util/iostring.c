@@ -133,41 +133,42 @@ static int parse_number( input_string_def *is, char *fmt, void *value )
 }
 
 
-int double_from_string( input_string_def *is, double *value )
+int double_from_string( input_string_def *is, void *value )
 {
     return parse_number( is, "%lf%1s", value );
 }
 
-int float_string( input_string_def *is, float *value )
+int float_string( input_string_def *is, void *value )
 {
     return parse_number( is, "%f%1s", value );
 }
 
-int long_from_string( input_string_def *is, long *value )
+int long_from_string( input_string_def *is, void *value )
 {
     return parse_number( is, "%ld%1s", value );
 }
 
-int int_from_string( input_string_def *is, int *value )
+int int_from_string( input_string_def *is, void *value )
 {
     int ival;
     int sts;
     sts = parse_number( is, "%d%1s", &ival );
-    (*value) = ival;
+    (*(int *)value) = ival;
     return sts;
 }
 
-int short_from_string( input_string_def *is, short *value )
+int short_from_string( input_string_def *is, void *value )
 {
     int ival;
     int sts;
     sts = parse_number( is, "%hd%1s", &ival );
-    (*value) = ival;
+    (*(short *)value) = ival;
     return sts;
 }
 
-int character_from_string( input_string_def *is, char *c )
+int character_from_string( input_string_def *is, void *cp )
 {
+    char *c = (char *) cp;
     *c = is->ptr ? *(is->ptr) : 0;
     if(*c) is->ptr++;
     return *c ? 1 : 0;
@@ -206,8 +207,20 @@ void report_string_error( input_string_def *is, int status, char *message )
 
 /*================================================================*/
 
-int write_output_string( output_string_def *os, char *s )
+int write_output_string( output_string_def *os, const char *s )
 {
     if( os->write ) return (*os->write)( s, os->sink );
     return FILE_WRITE_ERROR;
 }
+
+static int sfputs( const char *s, void *f )
+{
+    return (int) fputs( s, (FILE *) f );
+}
+
+void output_string_to_file( output_string_def *os, FILE *f )
+{
+    os->sink = f;
+    os->write = sfputs;
+}
+

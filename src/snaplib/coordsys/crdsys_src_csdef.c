@@ -85,7 +85,7 @@ static code_loc *get_code_loc( code_loc_block *codes, int ncode )
     return codes->codes + ncode;
 }
 
-static code_loc *find_code_loc( code_loc_block *codes, char type, char *code )
+static code_loc *find_code_loc( code_loc_block *codes, const char type, const char *code )
 {
     for( ; codes; codes = codes->next )
     {
@@ -158,7 +158,7 @@ static void scan_coordsys_defs( crdsys_file_source *cfs )
 }
 
 
-static input_string_def *cfs_code_def( crdsys_file_source *cfs, long id, char type, char *code )
+static input_string_def *cfs_code_def( crdsys_file_source *cfs, long id, const char type, const char *code )
 {
     code_loc *cl;
     input_string_def *instr;
@@ -177,8 +177,9 @@ static input_string_def *cfs_code_def( crdsys_file_source *cfs, long id, char ty
 }
 
 
-static int get_ellipsoid( crdsys_file_source *cfs, long id, char *code, ellipsoid**el )
+static int get_ellipsoid( void *pcfs, long id, const char *code, ellipsoid**el )
 {
+    crdsys_file_source *cfs = (crdsys_file_source *) pcfs;
     input_string_def *instr;
     *el = NULL;
     instr = cfs_code_def( cfs, id, CS_ELLIPSOID, code );
@@ -188,7 +189,7 @@ static int get_ellipsoid( crdsys_file_source *cfs, long id, char *code, ellipsoi
 }
 
 static crdsys_file_source *input_cfs;
-static ellipsoid *ellipsoid_from_code( char *code)
+static ellipsoid *ellipsoid_from_code( const char *code)
 {
     ellipsoid *el;
     int sts;
@@ -197,8 +198,9 @@ static ellipsoid *ellipsoid_from_code( char *code)
     return el;
 }
 
-static int get_ref_frame( crdsys_file_source *cfs, long id, char *code, ref_frame **rf )
+static int get_ref_frame( void *pcfs, long id, const char *code, ref_frame **rf )
 {
+    crdsys_file_source *cfs = (crdsys_file_source *) pcfs;
     input_string_def *instr;
     *rf = NULL;
     instr = cfs_code_def( cfs, id, CS_REF_FRAME, code );
@@ -208,7 +210,7 @@ static int get_ref_frame( crdsys_file_source *cfs, long id, char *code, ref_fram
     return *rf ? OK : INVALID_DATA;
 }
 
-static ref_frame *ref_frame_from_code( char *code )
+static ref_frame *ref_frame_from_code( const char *code )
 {
     ref_frame *rf;
     int sts;
@@ -218,8 +220,9 @@ static ref_frame *ref_frame_from_code( char *code )
 }
 
 
-static int get_coordsys( crdsys_file_source *cfs, long id, char *code, coordsys **cs )
+static int get_coordsys( void *pcfs, long id, const char *code, coordsys **cs )
 {
+    crdsys_file_source *cfs = (crdsys_file_source *) pcfs;
     input_string_def *instr;
     *cs = NULL;
     instr = cfs_code_def( cfs, id, CS_COORDSYS, code );
@@ -240,9 +243,10 @@ static int get_coordsys( crdsys_file_source *cfs, long id, char *code, coordsys 
 
 /* Load all codes defined in the coordinate system file */
 
-static int get_codes( crdsys_file_source *cfs,
-                      void (*addfunc)( int type, long id, char *code, char *desc ))
+static int get_codes( void *pcfs,
+                      void (*addfunc)( int type, long id, const char *code, const char *desc ))
 {
+    crdsys_file_source *cfs = (crdsys_file_source *) pcfs;
     char name[CRDSYS_NAME_LEN];
     long id;
     code_loc_block *cb;
@@ -270,15 +274,16 @@ static int get_codes( crdsys_file_source *cfs,
     return OK;
 }
 
-static int delete_crdsys_file_source( crdsys_file_source *cfs )
+static int delete_crdsys_file_source( void *pcfs )
 {
+    crdsys_file_source *cfs = (crdsys_file_source *) pcfs;
     df_close_data_file( cfs->df );
     delete_code_locs( cfs->codes );
     check_free( cfs );
     return 0;
 }
 
-static int create_crdsys_file_source( char *filename )
+static int create_crdsys_file_source( const char *filename )
 {
     DATAFILE *df;
     crdsys_file_source *cfs;
@@ -304,7 +309,7 @@ static int create_crdsys_file_source( char *filename )
 }
 
 
-int install_crdsys_file( char *filename )
+int install_crdsys_file( const char *filename )
 {
     return create_crdsys_file_source( filename );
 }

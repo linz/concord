@@ -27,7 +27,7 @@ typedef struct prj_list_s
 static prj_list *prj_types = NULL;
 
 
-projection_type *find_projection_type( char *code )
+projection_type *find_projection_type( const char *code )
 {
     prj_list *pt;
     for( pt = prj_types; pt; pt = pt->next )

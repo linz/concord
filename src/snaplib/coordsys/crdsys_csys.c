@@ -22,7 +22,7 @@ static char rcsid[]="$Id: crdsysc0.c,v 1.1 1995/12/22 16:25:13 CHRIS Exp $";
 static char *metre_units = "m";
 static char *radian_units = "rad";
 
-coordsys *create_coordsys( char *code, char *name, int type,
+coordsys *create_coordsys( const char *code, const char *name, int type,
                            ref_frame *rf, projection *prj )
 {
     coordsys *cs;
@@ -32,7 +32,7 @@ coordsys *create_coordsys( char *code, char *name, int type,
     _strupr( cs->code );
     cs->name = copy_string( name );
     cs->source = 0;
-    if( type != CSTP_GEOCENTRIC && type != CSTP_PROJECTION ) type = CSTP_GEODETIC;
+    if( type != CSTP_CARTESIAN && type != CSTP_PROJECTION ) type = CSTP_GEODETIC;
     cs->crdtype = (char) type;
     cs->rf = rf;
     cs->prj = prj;
@@ -80,7 +80,7 @@ coordsys *related_coordsys( coordsys *cs, int type )
     if( type == CSTP_PROJECTION && cs->crdtype != CSTP_PROJECTION ) return NULL;
     copy = copy_coordsys( cs );
     if( !copy ) return copy;
-    if( type != CSTP_GEOCENTRIC && type != CSTP_PROJECTION ) type = CSTP_GEODETIC;
+    if( type != CSTP_CARTESIAN && type != CSTP_PROJECTION ) type = CSTP_GEODETIC;
     copy->crdtype = (char) type;
     if( type == CSTP_GEODETIC )
     {
@@ -205,7 +205,7 @@ int is_geodetic( coordsys *cs )
 
 int is_geocentric( coordsys *cs )
 {
-    return cs->crdtype == CSTP_GEOCENTRIC;
+    return cs->crdtype == CSTP_CARTESIAN;
 }
 
 int has_deformation_model( coordsys *cs )

@@ -17,9 +17,12 @@
 
 */
 
-#include "util/dateutil.h"
+#include <stdio.h>
 #include <math.h>
+#include <string.h>
 #include <time.h>
+#include <ctype.h>
+#include "util/dateutil.h"
 
 static char rcsid[]="$Id: julian.c,v 1.2 2004/04/22 02:35:26 ccrook Exp $";
 
@@ -87,6 +90,88 @@ double snap_datetime_now()
                ltime->tm_hour,ltime->tm_min,ltime->tm_sec);
 }
 
+double snap_datetime_parse( const char *definition, const char *format )
+{
+    int ymdhmse[7] = { 0, 0, 0, 0, 0, 0, 0 };
+    int minval[7] = { 1000, 1, 1, 0, 0, 0, 1 };
+    int maxval[7] = { 4000, 12, 31, 24, 59, 59, 366 };
+    int maxchars[7] = { 4, 2, 2, 2, 2, 2, 3 };
+    const char *months = " JAN FEB MAR APR MAY JUN JUL AUG SEP OCT NOV DEC";
+    const char *formatchars = "YMDhmsN";
+    const char *defaultformat = "YMDhms";
+    char buffer[16];
+    const char *dp;
+    const char *fp;
+    int i;
+
+    if( ! format ) format = defaultformat;
+
+    dp = definition;
+
+    /* For each field in the format */
+    for( fp = format; *fp; fp++ )
+    {
+        const char *pfc;
+        int idx;
+        int ibuf;
+        int nbuf;
+        int isname;
+        if( isspace(*fp)) continue;
+        pfc = strchr(formatchars, *fp);
+        if( ! pfc ) return 0.0;
+        idx = pfc - formatchars;
+
+        /* Find the beginning of the field */
+        while( *dp )
+        {
+            if( isdigit(*dp)) break;
+            if( idx == 1 && isalnum(*dp)) break;
+            dp++;
+        }
+        ibuf = 0;
+
+        nbuf = maxchars[idx];
+        isname = 0;
+        if( !isdigit(*dp))
+        {
+            buffer[0] = ' ';
+            ibuf = 1;
+            nbuf = 10;
+            isname = 1;
+        }
+
+        while( *dp && isalnum(*dp) && ibuf < nbuf )
+        {
+            if( ! isdigit(*dp) && ! isname) return 0.0;
+            buffer[ibuf++] = *dp++;
+        }
+        buffer[ibuf] = 0;
+        if( isname )
+        {
+            const char *mptr;
+            if( strlen( buffer ) < 4 ) return 0.0;
+            buffer[4] = 0;
+            mptr = strstr( months, buffer );
+            if( ! mptr ) return 0.0;
+            ymdhmse[idx] = (mptr-months)/4;
+        }
+        else
+        {
+            sscanf(buffer,"%d",&ymdhmse[idx]);
+        }
+    }
+    if( ymdhmse[6] > 0 )
+    {
+        if( ymdhmse[6] > 366 ) return 0.0;
+        ymdhmse[1] = ymdhmse[2] = 1;
+    }
+    for( i = 0; i < 5; i++ )
+    {
+        if( ymdhmse[i] < minval[i] || ymdhmse[i] > maxval[i] ) return 0.0;
+    }
+    return snap_datetime(ymdhmse[0],ymdhmse[1],ymdhmse[2],ymdhmse[3],ymdhmse[4],ymdhmse[5])+ymdhmse[6];
+}
+
 double date_as_year( double snapdate )
 {
     static double refdate=0.0;
@@ -122,7 +207,7 @@ void date_as_ymdhms( double snapdate, int *year, int *month, int *day, int *hour
     h = (int) snapdate;
     snapdate = (snapdate - h)*60;
     m = (int) snapdate;
-    snapdate = (snapdate - h)*60;
+    snapdate = (snapdate - m)*60;
     s = (int) snapdate;
     if( hour ) *hour = h;
     if( min ) *min = m;

@@ -32,16 +32,16 @@ typedef struct
 
 #pragma warning (disable : 4100)
 
-static int rf_linzdef_delete( void *data )
+static void rf_linzdef_delete( void *data )
 {
     LinzDefModel *model = (LinzDefModel *) data;
-    if( model == NULL ) return OK;
+    if( model == NULL ) return;
     if( model->ldeffile ) check_free( model->ldeffile );
     if( model->linzdef ) { utlReleaseLinzDef(model->linzdef); model->linzdef = NULL; }
     if( model->binsrc ) { utlReleaseBinSrc(model->binsrc); model->binsrc = NULL; }
     if( model->linzdef ) { utlBlobClose(model->blob); model->blob = NULL; }
     check_free(model);
-    return OK;
+    return;
 }
 
 static void *rf_linzdef_create( char *ldeffile )

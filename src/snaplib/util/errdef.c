@@ -34,7 +34,7 @@ static int error_count = 0;
 #define LOCATION_LEN 256
 static char location[LOCATION_LEN] = {0};
 
-int handle_error( int sts, char *mess1, char *mess2 )
+int handle_error( int sts, const char *mess1, const char *mess2 )
 {
     FILE *out;
     if (!FATAL_ERROR_CONDITION(sts) & !WARNING_ERROR_CONDITION(sts)) return sts;
@@ -92,7 +92,7 @@ int get_error_count( void )
     return errc;
 }
 
-void set_error_location( char *loc )
+void set_error_location( const char *loc )
 {
     if( loc )
     {
@@ -107,7 +107,7 @@ void set_error_location( char *loc )
 /* default_error_handler is provided for consistency with the
    previous error handling library */
 
-int default_error_handler( int sts, char *mess1, char *mess2 )
+int default_error_handler( int sts, const char *mess1, const char *mess2 )
 {
     int result;
     errhandler_type saved_handler;
