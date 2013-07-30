@@ -31,6 +31,7 @@ typedef struct
     long lineno;
     int  maxreclen;
     int  errcount;
+    char unicode;
     char *inrec;
     char *inrecptr;
     char *lastrecptr;
@@ -48,7 +49,7 @@ typedef struct
 } datafile_loc;
 
 int   df_data_file_default_reclen( int newlen );
-DATAFILE *df_open_data_file( char *fname, char *description ) ;
+DATAFILE *df_open_data_file( const char *fname, const char *description ) ;
 char *df_file_name( DATAFILE *d );
 void  df_close_data_file( DATAFILE *d ) ;
 void  df_set_data_file_comment( DATAFILE *d, char comment );
@@ -59,12 +60,12 @@ int df_read_data_file( DATAFILE *d );
 char *df_rest_of_line( DATAFILE *d );
 input_string_def *df_input_string( DATAFILE *d );
 long  df_line_number( DATAFILE *d ) ;
-int df_data_file_error( DATAFILE *d, int sts, char *errmsg ) ;
+int df_data_file_error( DATAFILE *d, int sts, const char *errmsg ) ;
 int df_data_file_errcount( DATAFILE *d );
 void  df_save_data_file_loc( DATAFILE *d, datafile_loc *dl );
 void  df_reset_data_file_loc( DATAFILE *d, datafile_loc *dl );
 
-/* The following functions should really be handled by he input string def .. */
+/* The following functions should really be handled by the input string def .. */
 
 int df_skip_character( DATAFILE *d );
 int df_read_field( DATAFILE *d, char *field, int nfld );

@@ -27,7 +27,7 @@ void init_ellipsoid( ellipsoid *el, double a, double rf )
     el->a2b2 = el->a2 - el->b2;
 }
 
-ellipsoid *create_ellipsoid( char *code, char *name, double a, double rf )
+ellipsoid *create_ellipsoid( const char *code, const char *name, double a, double rf )
 {
     ellipsoid *el;
     el = (ellipsoid *) check_malloc( sizeof(ellipsoid) );

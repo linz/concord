@@ -34,10 +34,10 @@ typedef struct csd_s
 {
     struct csd_s *next;
     void *data;
-    int (*getrf)( void *data, long id, char *code, ref_frame **rf );
-    int (*getel)( void *data, long id, char *code, ellipsoid **el );
-    int (*getcs)( void *data, long id, char *code, coordsys  **cs );
-    int (*getcodes)( void *data, void (*addfunc)( int type, long id, char *code, char *desc ) );
+    int (*getrf)( void *data, long id, const char *code, ref_frame **rf );
+    int (*getel)( void *data, long id, const char *code, ellipsoid **el );
+    int (*getcs)( void *data, long id, const char *code, coordsys  **cs );
+    int (*getcodes)( void *data, void (*addfunc)( int type, long id, const char *code, const char *desc ) );
     int (*delsource)( void *data );
 } crdsys_source_def;
 

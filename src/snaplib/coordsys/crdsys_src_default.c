@@ -37,7 +37,7 @@ static char rcsid[]="$Id: crdsysf1.c,v 1.2 1996/05/20 16:36:08 CHRIS Exp $";
 static char *CRDSYSENV = "COORDSYSDEF";
 static char *CRDSYSFILE = "coordsys.def";
 
-int install_default_crdsys_file( char *path )
+int install_default_crdsys_file( const char *path )
 {
     char *filename;
     install_default_projections();
@@ -54,7 +54,7 @@ int install_default_crdsys_file( char *path )
         int len;
         int sts;
         len = path_len(path,0);
-        filename = check_malloc( len + strlen(CRDSYSFILE) + 1 );
+        filename = (char *) check_malloc( len + strlen(CRDSYSFILE) + 1 );
         memcpy(filename,path,len);
         strcpy(filename+len,CRDSYSFILE);
         sts = FILE_OPEN_ERROR;

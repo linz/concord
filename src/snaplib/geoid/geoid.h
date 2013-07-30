@@ -1,3 +1,5 @@
+#ifndef _GEOID_H
+#define _GEOID_H
 
 /*
    $Log: geoid.h,v $
@@ -24,6 +26,8 @@
 /* Note: set_find_file_directories should be called before create_geoid_filename */
 
 
+#include <stdio.h>
+
 #include "geoid/griddata.h"
 #include "coordsys/coordsys.h"
 
@@ -34,18 +38,20 @@ typedef struct
     double gridsize;
 } geoid_def;
 
-char *create_geoid_filename( char *geoidname );
-void delete_geoid_filename( char *filename );
+const char *create_geoid_filename( const char *geoidname );
+void delete_geoid_filename( const char *filename );
 
-geoid_def *create_geoid_grid( char *filename );
+geoid_def *create_geoid_grid( const char *filename );
 void delete_geoid_grid( geoid_def *gd );
 void print_geoid_header( geoid_def *gd, FILE *out, int width, char *prefix );
 void print_geoid_data( geoid_def *gd, FILE *out, char showGrid );
 coordsys *get_geoid_coordsys( geoid_def *gd );
-char *get_geoid_model( geoid_def *gd );
+const char *get_geoid_model( geoid_def *gd );
 
 /* Note, lat/lon in radians in these calls */
 
 int calculate_geoid_undulation( geoid_def *gd, double lat, double lon, double *undulation );
 int calculate_geoid_exu( geoid_def *gd, double lat, double lon, double exu[3] );
+
+#endif
 

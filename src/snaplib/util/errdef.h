@@ -64,14 +64,14 @@
    program to report errors.  If a fatal error condition is encountered
    the program always exits. */
 
-typedef int (*errhandler_type)( int sts, char *msg1, char *msg2 );
+typedef int (*errhandler_type)( int sts, const char *msg1, const char *msg2 );
 
-int handle_error( int sts, char *mess1, char *mess2 );
-int default_error_handler( int sts, char *mess1, char *mess2 );
+int handle_error( int sts, const char *mess1, const char *mess2 );
+int default_error_handler( int sts, const char *mess1, const char *mess2 );
 void set_error_file( FILE *errfile );
 errhandler_type set_error_handler( errhandler_type errhndler );
 int get_error_count( void );
-void set_error_location( char *loc );
+void set_error_location( const char *loc );
 
 
 #define NO_MESSAGE ((char *) 0)

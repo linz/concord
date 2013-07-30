@@ -34,7 +34,7 @@ This includes managing reference frames, ellipsoids, and projections.
 #define CRDSYS_CODE_LEN 20
 #define CRDSYS_NAME_LEN 128
 
-enum { CSTP_GEOCENTRIC, CSTP_GEODETIC, CSTP_PROJECTION };
+enum { CSTP_CARTESIAN, CSTP_GEODETIC, CSTP_PROJECTION };
 enum { CS_ELLIPSOID, CS_REF_FRAME, CS_COORDSYS, CS_INVALID };
 
 /* Definition of an ellipsoid.  In addition to the ID, code and
@@ -182,16 +182,16 @@ typedef struct
 /* Routines relating to ellipsoids */
 
 void init_ellipsoid( ellipsoid *el, double a, double rf );
-ellipsoid *create_ellipsoid( char *code, char *name, double a, double rf );
+ellipsoid *create_ellipsoid( const char *code, const char *name, double a, double rf );
 ellipsoid *copy_ellipsoid( ellipsoid *el );
 void delete_ellipsoid( ellipsoid *el );
 
 /* Routines relating to reference frames.  NOTE: The reference frame takes
    over ownership of the ellipsoid.  */
 
-ref_frame *create_ref_frame( char *code, char *name,
+ref_frame *create_ref_frame( const char *code, const char *name,
                              ellipsoid *el,
-                             char *refcode, double txyz[3], double rxyz[3], double scale );
+                             const char *refcode, double txyz[3], double rxyz[3], double scale );
 ref_frame *copy_ref_frame( ref_frame *rf );
 void delete_ref_frame( ref_frame *rf );
 
@@ -207,13 +207,13 @@ void init_ref_frame( ref_frame *rf );
 /* This could go to a private header file */
 
 projection_type *register_projection_type( projection_type *tp );
-projection_type *find_projection_type( char *code );
+projection_type *find_projection_type( const char *code );
 
 projection *create_projection( projection_type *type );
 projection *copy_projection( projection *prj );
 void delete_projection( projection *prj );
 
-void set_projection_name( projection *prj, char *name );
+void set_projection_name( projection *prj, const char *name );
 void set_projection_ellipsoid( projection *prj, ellipsoid *el );
 
 
@@ -222,7 +222,7 @@ void set_projection_ellipsoid( projection *prj, ellipsoid *el );
   If the calling routines needs to retain ownership it should make
   copies for the call to create_coordsys */
 
-coordsys *create_coordsys( char *code, char *name, int type,
+coordsys *create_coordsys( const char *code, const char *name, int type,
                            ref_frame *rf, projection *prj );
 coordsys *copy_coordsys( coordsys *cs );
 coordsys *related_coordsys( coordsys *cs, int type );
@@ -263,13 +263,13 @@ int check_coordsys_range( coordsys *cs, double xyz[3] );
 
 ellipsoid  *parse_ellipsoid_def ( input_string_def *is, int embedded );
 ref_frame  *parse_ref_frame_def ( input_string_def *is,
-                                  ellipsoid *(*getel)(char *code ), int embedded );
+                                  ellipsoid *(*getel)(const char *code ), int embedded );
 int parse_ref_frame_func_def ( input_string_def *is, ref_frame_func **rff );
 int parse_ref_deformation_def ( input_string_def *is, ref_deformation **rdf );
 
 projection *parse_projection_def( input_string_def *is );
 coordsys   *parse_coordsys_def  ( input_string_def *is,
-                                  ref_frame *(*getrf)(char *code ));
+                                  ref_frame *(*getrf)(const char *code ));
 
 /*=====================================================================*/
 /* Getting information about components of coordinate systems.         */
@@ -386,8 +386,8 @@ void install_crdsys_nz_metre_circuits( void );
 
 /* Get definitions from a file file  */
 
-int install_crdsys_file( char *file_name );
-int install_default_crdsys_file( char *path );
+int install_crdsys_file( const char *file_name );
+int install_default_crdsys_file( const char *path );
 void  install_default_projections( void );
 
 /* Clear the list of definitions */
@@ -400,20 +400,20 @@ int ref_frame_list_count( void );
 const char *ref_frame_list_code( int item );
 const char *ref_frame_list_desc( int item );
 ref_frame * ref_frame_from_list( int item );
-ref_frame * load_ref_frame( char *code );
+ref_frame * load_ref_frame( const char *code );
 
 
 int ellipsoid_list_count( void );
 const char *ellipsoid_list_code( int item );
 const char *ellipsoid_list_desc( int item );
 ellipsoid * ellipsoid_from_list( int item );
-ellipsoid * load_ellipsoid( char *code );
+ellipsoid * load_ellipsoid( const char *code );
 
 
 int coordsys_list_count( void);
 const char *coordsys_list_code( int item );
 const char *coordsys_list_desc( int item );
 coordsys * coordsys_from_list( int item );
-coordsys * load_coordsys( char *code );
+coordsys * load_coordsys( const char *code );
 
 #endif /* COORDSYS_H defined */

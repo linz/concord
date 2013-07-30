@@ -145,7 +145,7 @@ int clear_list(void *list, void (*dispose)( void *item ) )
         check_free(elt);
         elt = nxt;
     }
-    init_list_pointers( list );
+    init_list_pointers( lst );
     return 0;
 }
 

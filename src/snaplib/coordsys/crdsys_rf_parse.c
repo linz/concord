@@ -38,7 +38,7 @@ static char rcsid[]="$Id: crdsysr3.c,v 1.3 2004/01/27 21:16:34 ccrook Exp $";
          }
 
 ref_frame  *parse_ref_frame_def ( input_string_def *is,
-                                  ellipsoid *(*getel)(char *code ), int embedded )
+                                  ellipsoid *(*getel)(const char *code ), int embedded )
 {
     char refcode[CRDSYS_CODE_LEN+1];
     char refname[CRDSYS_NAME_LEN+1];

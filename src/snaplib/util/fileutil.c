@@ -28,9 +28,9 @@
 
 static char rcsid[]="$Id: fileutil.c,v 1.3 2004/04/22 02:35:24 ccrook Exp $";
 
-int path_len( char *base, int want_name )
+int path_len( const char *base, int want_name )
 {
-    char *c;
+    const char *c;
     int i, idot, ipath;
 
     idot = -2;
@@ -48,7 +48,7 @@ int path_len( char *base, int want_name )
 
 /* Check whether a file exists by trying to open it for reading */
 
-int file_exists( char *file )
+int file_exists( const char *file )
 {
     if( ! file ) return 0;
     return _access( file, 04 ) == 0 ? 1 : 0;
@@ -56,7 +56,7 @@ int file_exists( char *file )
 
 
 char *build_filespec( char *spec, int nspec,
-                      char *dir, char *name, char *dflt_ext )
+                      const char *dir, const char *name, const char *dflt_ext )
 {
     int nch;
 
@@ -97,7 +97,7 @@ char *build_filespec( char *spec, int nspec,
 
 #ifdef UNIX
 
-char *find_image( char *argv0 )
+char *find_image( const char *argv0 )
 {
     char* path;
     char _link[20];
@@ -128,7 +128,7 @@ char *find_image( char *argv0 )
 }
 
 #if 0
-char *find_image( char *argv0 )
+char *find_image( const char *argv0 )
 {
     char *image;
     char *path = getenv("PATH");
@@ -175,7 +175,7 @@ char *find_image( char *argv0 )
 
 #else
 
-char *find_image( char *argv0 )
+char *find_image( const char *argv0 )
 {
 
     char *path=NULL;
@@ -198,45 +198,62 @@ static char *home_dir = NULL;
 
 static char spec[MAX_FILENAME_LEN];
 
-void set_find_file_directories( char *progname, char *basedir, char *homeenv )
+void set_find_file_directories( const char *progname, const char *basedir, const char *homeenv )
 {
-    char *homedir;
     if( progname )
     {
-        int l;
-        l = path_len( progname, 0 );
-        if( prog_dir ) check_free( prog_dir );
-        prog_dir = (char *) check_malloc( l + 1 );
-        strncpy( prog_dir, progname, l );
-        prog_dir[l] = 0;
+        set_find_file_prog_dir( progname );
     }
     if( basedir )
     {
-        int l;
-        l = path_len( basedir, 0 );
-        if( base_dir ) check_free( base_dir);
-        base_dir = (char *) check_malloc( l + 1 );
-        strncpy( base_dir, basedir, l );
-        base_dir[l] = 0;
+        set_find_file_base_dir( basedir );
     }
-    if( !homeenv ) return;
-    homedir = getenv( homeenv );
-    if( homedir )
+    if( homeenv ) 
     {
-        int l;
-        if( home_dir ) check_free( home_dir );
-        l = strlen(homedir);
-        home_dir = check_malloc( l+2 );
-        strcpy( home_dir, homedir );
-        if( home_dir[l-1] != PATH_SEPARATOR )
+        char *homedir = getenv( homeenv );
+        if( homedir )
         {
-            home_dir[l] = PATH_SEPARATOR;
-            home_dir[l+1] = '\0';
+            set_find_file_home_dir( homedir );
         }
     }
 }
 
-char *find_file( char *name, char *dflt_ext, int options )
+void set_find_file_base_dir( const char *basefile )
+{
+    int l;
+    l = path_len( basefile, 0 );
+    if( base_dir ) check_free( base_dir);
+    base_dir = (char *) check_malloc( l + 1 );
+    strncpy( base_dir, basefile, l );
+    base_dir[l] = 0;
+}
+
+void set_find_file_home_dir( const char *homedir )
+{
+    int l;
+    if( home_dir ) check_free( home_dir );
+    l = strlen(homedir);
+    home_dir = (char *) check_malloc( l+2 );
+    strcpy( home_dir, homedir );
+    if( home_dir[l-1] != PATH_SEPARATOR )
+    {
+        home_dir[l] = PATH_SEPARATOR;
+        home_dir[l+1] = '\0';
+    }
+}
+
+void set_find_file_prog_dir( const char *progname )
+{
+    int l;
+    l = path_len( progname, 0 );
+    if( prog_dir ) check_free( prog_dir );
+    prog_dir = (char *) check_malloc( l + 1 );
+    strncpy( prog_dir, progname, l );
+    prog_dir[l] = 0;
+}
+
+
+char *find_file( const char *name, const char *dflt_ext, int options )
 {
 
     if( (options & FF_TRYBASEDIR) && file_exists(
@@ -262,7 +279,7 @@ char *find_file( char *name, char *dflt_ext, int options )
     return NULL;
 }
 
-char *find_file_from_base( char *base, char *name, char *dflt_ext )
+char *find_file_from_base( const char *base, const char *name, const char *dflt_ext )
 {
     char base_dir[MAX_FILENAME_LEN];
     int len = 0;
