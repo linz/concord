@@ -550,7 +550,7 @@ static int decode_number( char *s, int min, int max, char *type )
 
 #pragma warning (disable : 4100)
 
-static int printf_func( char *s, void *dummy )
+static int printf_func( const char *s, void *dummy )
 {
     printf(s);
     return 0;
@@ -1156,7 +1156,7 @@ static void setup_transformation( void )
 
     if (point_ids)
     {
-        id = malloc( id_length+1 );
+        id = (char *) malloc( id_length+1 );
         if (id==NULL) error_exit("Memory allocation error","");
     }
 
@@ -1292,12 +1292,21 @@ static void open_files( void )
 
 static void head_output( FILE * out )
 {
-    fprintf(out,"\n          %s - coordinate conversion program\n",PROGNAME);
-    fprintf(out,"\nInput coordinates:  %s\n", input_cs->name);
+	int use_deformation = cnv.from_def || cnv.to_def;
+    fprintf(out,"\n%s - coordinate conversion program (version %s dated %s)\n",
+         PROGNAME,VERSION,PROGDATE);
+    fprintf(out,"\nInput coordinates:  %s", input_cs->name);
+    if( use_deformation ) fprintf(out," at epoch %.2lf",cnv.epochfrom);
+    fprintf(out,"\n");
     if( input_ortho ) fprintf(out,"                    Input heights are orthometric\n");
-    fprintf(out,  "\nOutput coordinates: %s\n", output_cs->name );
+    fprintf(out,  "\nOutput coordinates: %s", output_cs->name );
+    if( use_deformation ) fprintf(out," at epoch %.2lf",cnv.epochto);
+    fprintf(out,"\n");
     if( output_ortho ) fprintf(out,"                    Output heights are orthometric\n");
-
+    if( use_deformation && ! identical_datum( input_cs->rf, output_cs->rf ))
+    {
+        fprintf(out,"\nDatum conversion epoch %.2lf\n",cnv.epochconv);
+    }
     if( transform_heights ) fprintf(out,"\nGeoid heights from %s\n",get_geoid_model( geoiddef ));
 }
 
@@ -1796,6 +1805,7 @@ int main( int argc, char *argv[] )
         rplen = path_len( exefile, 0 );
         exefile[rplen] = 0;
         sts = install_default_crdsys_file( exefile );
+        /* set_application_name( "concord" ); */
         set_find_file_directories( exefile, NULL, NULL );
     }
     if( sts != OK )
@@ -1809,8 +1819,8 @@ int main( int argc, char *argv[] )
     setup_transformation();
     if( transform_heights )
     {
-        char *gfile = geoid_file;
-        char *title = NULL;
+        const char *gfile = geoid_file;
+        const char *title = NULL;
         geoiddef = 0;
         if( ! file_exists(gfile) &&input_cs && input_cs->source && strncmp(input_cs->source,"file:",5) == 0 )
         {

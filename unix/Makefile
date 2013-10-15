@@ -72,7 +72,7 @@ FILES=\
 
 OBJECTS = $(FILES:.c=.o)
 
-CFLAGS = -I$(SRC)/snaplib -I$(SRC)/snaplib/dbl4
+CFLAGS = -g -I$(SRC)/snaplib -I$(SRC)/snaplib/dbl4
 
 bin/concord: $(OBJECTS)
 	rm -rf bin

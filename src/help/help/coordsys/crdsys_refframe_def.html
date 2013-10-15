@@ -17,8 +17,12 @@
 
 <p>Reference frame definitions have the following format in the coordinate system definition file: </p>
 
-<pre><code>code description ELLIPSOID ellipsoid_code refcode 
-                       Tx Ty Tz Rx Ry Rz scale</code></pre>
+<pre><code>
+code description ELLIPSOID ellipsoid_code refcode 
+		 Tx Ty Tz Rx Ry Rz scale
+                 <i>grid_conversion_definition</i>
+                 <i>deformation_model_definition</i>
+</code></pre>
 
 <p>where</p>
 
@@ -36,17 +40,68 @@
 
 <p><i>scale</i> is the scale difference between the reference frame and the reference system.  It is applied to coordinates to convert them back to the reference system.  The scale is defined in parts per million.</p>
 
+<p><i>grid_conversion_definition</i> defines a grid based conversion between the base reference frame and this one.  The grid model is applied in addition to the seven parameter transformation.  Currently only one format of grid conversion is defined:
+</p>
+
+<pre><code>
+GRID SNAP2D <i>filename</i> <i>description</i>
+</code></pre>
+<p>where <i>filename</i> is the name of the <a href="gridfile_c.html">grid file</a> containing the grid defining
+the latitude and longitude offsets to be applied, and <i>description</i> is a text description of the model.</p>
+
+<p><i>deformation_model_definition</i> defines a deformation model that applies for the datum.  The deformation model is used to convert coordinates between different epochs.  The definition is structured as: 
+</p>
+
+<pre><code>
+DEFORMATION <i>conversion_epoch</i> <i>type</i> <i>parameters</i>
+</code></pre>
+
+<p>Here <i>conversion_epoch</i> is the default epoch for conversions between
+different datums.  Two convert between two datums with deformation models, the 
+coordinates are first converted from their defined epoch to the conversion epoch, 
+then the transformation parameters are applied, then the coordinate is converted to the target epoch.
+If the datums have a different conversion epoch then the coordinates cannot be transformed from one to the other, unless the conversion epoch is overridden with a user specified epoch.
+</p>
+<p>There are currently four model types supported by concord and SNAP. These are <p>
+<pre><code>
+VELGRID <i>grid_file_name</i> <i>reference_epoch</i><br />
+LINZDEF <i>def_model_file</i>
+BW14 <i>reference_epoch dTx dTy dTz dRx dRy dRz dS</i> 
+EULER <i>reference_epoch Plon Plat rate</i>
+NONE
+</code></pre>
+<p>
+The VELGRID model is a gridded velocity model defining the east and north
+components of velocities on the grid.  It requires a reference epoch which 
+defines the time at which the deformation is zero.
+</p>
+<p>
+The LINZDEF model is a <a href="linzdefmodel.html">complex model</a> comprising 
+multiple components.  This has just one parameter, the name of the model definition file.  This also uses the epoch 0 to mean coordinates with no deformation model applied.  This does not necessarily correspond to actual coordinates at any real epoch.  For NZGD2000 this would be the reference coordinates used to refer to a mark.
+</p>
+<p>
+THe BW14 model adds a rate change to the Bursa Wolf model. It has parameters of a reference epoch, at which the deformation is zero, and translation rates (mm/year), rotation rates (msec/year), and scale change rate (ppb/year).
+</p>
+<p>
+The EULER model calculates deformation based on a Euler rotation pole and rate.  It has parameters of a reference epoch at which the deformation is zero, the longitude and latitude of the pole (in degrees), and the rotation rate in msec/year.
+</p>
+
 <p>Here is an example of the reference frames section of the coordinate system definition file:</p>
 
 <pre><code>[reference_frames]
  
-WGS84  "World Geodetic System 1984" &amp;
+WGS84  &quot;World Geodetic System 1984&quot; &amp;
     ELLIPSOID WGS84 &amp;
     WGS84 0.0 0.0 0.0 0.0 0.0 0.0 0.0
 
-NZGD49 "New Zealand Geodetic Datum 1949" &amp;
+NZGD49 &quot;New Zealand Geodetic Datum 1949&quot; &amp;
     ELLIPSOID INTERNATIONAL &amp;
-    WGS84 59.47 -5.04 187.44 -0.47 0.10 -1.024 -4.5993
+    WGS84 59.47 -5.04 187.44 -0.47 0.10 -1.024 -4.5993 &amp;
+    GRID SNAP2D def492kt.grd &quot;LINZ NZGD49-NZGD2000 conversion grid&quot;
+
+NZGD2000 &quot;New Zealand Geodetic Datum 2000&quot; ELLIPSOID GRS80 &amp;
+   WGS84 0 0 0 0 0 0 0 &amp;
+   DEFORMATION 2000.0 VELGRID igns98b 2000.0
 </code></pre>
 
 <div class="SeeAlso">

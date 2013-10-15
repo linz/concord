@@ -15,13 +15,14 @@
 
 <h1>Grid file format</h1>
 
-<p>Gridded data are used in the SNAP programs for:</p>
+<p>Gridded data are used in the SNAP and concord programs for:</p>
 
 <p class="BulletList"> defining the geoid model to convert between ellipsoidal and
 orthometric heights</p>
 
 <p class="BulletList"> defining distortion in a reference frame definition</p>
 <p class="BulletList"> defining velocity models to account for deformation in adjustments</p>
+<p class="BulletList"> defining components of the <a href="linzdefmodel.html">LINZ deformation model</a>.</p>
 
 <p>For each of these functions the grid model
 is stored as a binary file. The grid model is aligned with its coordinate
@@ -84,7 +85,7 @@ the value of the record. </p>
   geoid files  only allows one grid value at each node</p></td>
   </tr><tr>
   <td><p>GRID1L</p></td>
-  <td><p>Little endian binary format  format
+  <td><p>Little endian binary format 
   used for distortion grids and velocity grids</p></td>
   </tr><tr>
   <td><p>GRID2L</p></td>
@@ -336,6 +337,7 @@ V141,141: -0.00012834 1.534e-005
 <div class="SeeAlso">
 <h3>See also:</h3>
 <p><a href="geoid.html">Geoid files</a></p>
+<p><a href="../programs/snap/index.html">The SNAP network adjustment program</a></p>
 <p><a href="../programs/concord/index.html">Concord - coordinate conversion program</a></p>
 <p><a href="../programs/snapgeoid/index.html">Snapgeoid - add geoid heights to SNAP coordinate files</a></p>
 </div>
