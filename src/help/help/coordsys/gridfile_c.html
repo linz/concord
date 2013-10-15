@@ -21,6 +21,8 @@
 orthometric heights</p>
 
 <p class="BulletList"> defining distortion in a reference frame definition</p>
+<p class="BulletList"> defining velocity models to account for deformation in adjustments</p>
+<p class="BulletList"> defining components of the <a href="linzdefmodel.html">LINZ deformation model</a>.</p>
 
 <p>For each of these functions the grid model
 is stored as a binary file. The grid model is aligned with its coordinate
@@ -30,12 +32,12 @@ calculated by bilinear interpolation of the values at the four corners of the
 grid cell within which the point lies.</p>
 
 <p>A set of values are defined at each node in
-the grid. For the geoid model there is just one value, which is the height
+the grid. For the a geoid model there is just one value, which is the height
 of the geoid in metres at the node. For the distortion model there are two
 values, being the adjustment in degrees to apply to the longitude and latitude
 after the base 7 parameter model has been applied to convert from the distorted
-datum to the reference datum. 
-</p>
+datum to the reference datum. For velocity grids there are two values each
+node, being the east and north velocities in metres per year.</p>
 
 <p>For compactness and efficiency the data values are stored
 in the binary file as integer values. The grid model defines a scale
