@@ -49,8 +49,39 @@ int define_coord_conversion_epoch( coord_conversion *conv,
     conv->epochfrom = 0;
     conv->epochto = 0;
     conv->epochconv = convepoch;
+    conv->errmsg[0] = 0;
 
-    conv->valid = strcmp(from->rf->refcode,to->rf->refcode) == 0;
+    /* If using the same reference frame then conversions are valid */
+    conv->valid = strcmp(from->rf->code,to->rf->code) == 0;
+
+    /* If not using the same the must have common base reference frame codes,
+     * which cannot be NONE 
+     */
+
+    if( ! conv->valid )
+    {
+        conv->valid = _stricmp(from->rf->refcode,"NONE") != 0 &&
+            _stricmp(to->rf->refcode,"NONE") != 0 &&
+            strcmp(from->rf->refcode,to->rf->refcode) == 0;
+        /* And if we are changing between different datums, check whether we
+         * either don't need, or have, a date for the transformation 
+         */
+
+        if( ! conv->valid )
+        {
+            sprintf(conv->errmsg,
+                    "Conversion between coordinate systems %.20s and %.20s is not possible",
+                    from->code, to->code);
+        }
+        else if( convepoch==0.0 && datum_transformation_needs_date(from->rf, to->rf))
+        {
+            conv->valid=0;
+            sprintf(conv->errmsg,
+                    "Conversion between reference frames %.20s and %.20s requires a date",
+                    from->rf->code, to->rf->code);
+        }
+    }
+
     conv->conv_rf = !identical_ref_frame_axes( from->rf, to->rf );
     conv_el = conv->conv_rf;
     if( !conv_el )
@@ -101,11 +132,15 @@ int define_coord_conversion_epoch( coord_conversion *conv,
 
     fromdef = from->rf->def;
     todef = to->rf->def;
-    if( ! fromdef && ! todef ) return conv->valid ? OK : INVALID_DATA;
-    /* Check for compatible base epoch */
+    if( ! conv->valid ) return INVALID_DATA;
+    if( ! fromdef && ! todef ) return OK;
+    /* Check for compatible deformation base epoch */
     if( convepoch == 0 && fromdef && todef && fromdef->conv_epoch != todef->conv_epoch )
     {
         conv->valid = 0;
+        sprintf(conv->errmsg,
+            "Conversion between coordinate systems %.20s and %.20s requires a date",
+            from->code, to->code);
         return INVALID_DATA;
     }
 
@@ -130,7 +165,7 @@ int define_coord_conversion_epoch( coord_conversion *conv,
         conv->to_def = conv->epochto == conv->epochconv ? 0 : 1;
     }
 
-    /* Ensure we have ellipsoidal coordinates available as required by deformation */
+    /* Ensure we generate ellipsoidal coordinates required by deformation */
 
     if( conv->from_def && conv->from_geoc  ) { conv->from_el = 2; }
     if( conv->to_def && conv->to_geoc  ) { conv->to_el = 2; }
@@ -165,7 +200,10 @@ int convert_coords( coord_conversion *conv,
 
     /* Do the reference frames have a consistent frame */
 
-    if( !conv->valid ) return INVALID_DATA;
+    if( ! conv->valid ) return INVALID_DATA;
+
+    /* Clear out any old error message */
+    conv->errmsg[0] = 0;
 
     from = conv->from;
     to = conv->to;
@@ -210,20 +248,30 @@ int convert_coords( coord_conversion *conv,
         gllh[CRD_HGT] = xyz[CRD_HGT] - gllh[CRD_HGT];
     }
 
-    if( ! (from_el && to_el) || conv->conv_rf )
-    {
+    /*
+     * if( ! (from_el && to_el) || conv->conv_rf )
+     * {
+     */
         if( from_el ) llh_to_xyz( from->rf->el, xyz, xyz, NULL, NULL );
 
         if( conv->conv_rf )
         {
-            sts = xyz_to_std( from->rf, xyz );
+            sts = xyz_to_std( from->rf, xyz, conv->epochconv );
             if( sts != OK ) failed_sts = sts;
-            sts = std_to_xyz( to->rf, xyz );
+            sts = std_to_xyz( to->rf, xyz, conv->epochconv );
             if( sts != OK ) failed_sts = sts;
+            if( failed_sts != OK )
+            {
+                sprintf(conv->errmsg,
+                    "Cannot convert coordinates between reference frames %.20s and %.20s",
+                    from->rf->code, to->rf->code);
+            }
         }
 
         if( to_el ) xyz_to_llh( to->rf->el, xyz, xyz );
+        /*
     }
+    */
 
     /* Recompute the deflections etc */
 
@@ -247,6 +295,12 @@ int convert_coords( coord_conversion *conv,
     if( to->gotrange && to->rf->el )
     {
         in_range = check_crdsys_range( to, xyz );
+        if( ! in_range )
+        {
+            sprintf(conv->errmsg,
+               "Converted coordinates are outside range of %.20s coordinate system",
+               to->code);
+        }
     }
     else
     {

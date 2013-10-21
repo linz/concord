@@ -44,6 +44,7 @@ typedef struct
 
 void set_input_string_def( input_string_def *s, char *string );
 int next_string_field( input_string_def *is, char *buf, int nbuf );
+int test_next_string_field( input_string_def *is, const char *test );
 int skip_string_field( input_string_def *is );
 int double_from_string( input_string_def *is, void *value );
 int float_from_string( input_string_def *is, void *value );

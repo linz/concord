@@ -1,6 +1,6 @@
 BB3L     1266497.2677  4980484.7783
 BDQ7     1746623.1880  5432013.3253
-**** Coordinate range error for point BDQ8 ****  BDQ8   -38.25 181.25
+**** Converted coordinates are outside range of NZTM_D coordinate system for point BDQ8 ****  BDQ8   -38.25 181.25
 BDQ8A    2103314.3653  5750781.2876
 BDQ9     1490624.9072  5765707.6638
 POINT    1639148.5219  6086270.8393

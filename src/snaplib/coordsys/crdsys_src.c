@@ -97,7 +97,7 @@ ellipsoid * load_ellipsoid( const char *code )
     return el;
 }
 
-static int parse_epoch( const char *epochstr, double *epoch )
+int parse_crdsys_epoch( const char *epochstr, double *epoch )
 {
     if( _stricmp(epochstr,"now") == 0 )
     {
@@ -146,7 +146,7 @@ coordsys * load_coordsys( const char *code )
 
     /* Look for an @ character, defining an epoch */
     for( nch = 0; code[nch] != 0 && code[nch] != '@'; nch++ ) {}
-    if( code[nch] && ! parse_epoch( code+nch+1, &epoch ) )
+    if( code[nch] && ! parse_crdsys_epoch( code+nch+1, &epoch ) )
     {
         return NULL;
     }

@@ -46,6 +46,9 @@ ref_frame  *parse_ref_frame_def ( input_string_def *is,
     char stdcode[CRDSYS_CODE_LEN+1];
     char *stdfrm = 0;
     double sf, txyz[3], rxyz[3];
+    double dsf, dtxyz[3], drxyz[3];
+    double refdate=0.0;
+    int iersunits=0;
     ellipsoid *el = 0;
     ref_frame *rf = 0;
     ref_frame_func *rff = 0;
@@ -80,6 +83,13 @@ ref_frame  *parse_ref_frame_def ( input_string_def *is,
     txyz[0] = txyz[1] = txyz[2] = 0.0;
     rxyz[0] = rxyz[1] = rxyz[2] = 0.0;
 
+    dsf = 0.0;
+    dtxyz[0] = dtxyz[1] = dtxyz[2] = 0.0;
+    drxyz[0] = drxyz[1] = drxyz[2] = 0.0;
+
+    rff = NULL;
+    rdf = NULL;
+
     if( sts == OK )
     {
         READ_STRING( "base frame code", stdcode, CRDSYS_CODE_LEN );
@@ -100,6 +110,8 @@ ref_frame  *parse_ref_frame_def ( input_string_def *is,
         {
             stdfrm = stdcode;
 
+            iersunits=test_next_string_field( is, "IERS");
+
             READ_DOUBLE( "x translation", &txyz[0] );
             READ_DOUBLE( "y translation", &txyz[1] );
             READ_DOUBLE( "z translation", &txyz[2] );
@@ -109,15 +121,40 @@ ref_frame  *parse_ref_frame_def ( input_string_def *is,
             READ_DOUBLE( "z rotation", &rxyz[2] );
 
             READ_DOUBLE( "scale factor", &sf );
+
+            if( sts == OK && test_next_string_field( is, "RATES" ))
+            {
+                READ_DOUBLE( "reference date", &refdate );
+                READ_DOUBLE( "x translation rate", &dtxyz[0] );
+                READ_DOUBLE( "y translation rate", &dtxyz[1] );
+                READ_DOUBLE( "z translation rate", &dtxyz[2] );
+
+                READ_DOUBLE( "x rotation rate", &drxyz[0] );
+                READ_DOUBLE( "y rotation rate", &drxyz[1] );
+                READ_DOUBLE( "z rotation rate", &drxyz[2] );
+
+                READ_DOUBLE( "scale factor rate", &dsf );
+            }
+
+            if( iersunits )
+            {
+                int i;
+                for( i=0; i<3; i++ )
+                {
+                    txyz[i]*=0.001;
+                    dtxyz[i]*=0.001;
+                    rxyz[i]*=-0.001;
+                    drxyz[i]*=-0.001;
+                }
+                sf*=0.001;
+                dsf*=0.001;
+            }
         }
-    }
 
-    rff = NULL;
-    rdf = NULL;
-
-    if( sts == OK )
-    {
-        sts = parse_ref_frame_func_def( is, &rff );
+        if( sts == OK )
+        {
+            sts = parse_ref_frame_func_def( is, &rff );
+        }
     }
     if( sts == OK )
     {
@@ -161,9 +198,11 @@ ref_frame  *parse_ref_frame_def ( input_string_def *is,
 
     if( sts == OK )
     {
-        rf = create_ref_frame(  refcode, refname, el, stdfrm, txyz, rxyz, sf );
+        rf = create_ref_frame(  refcode, refname, el, stdfrm, txyz, rxyz, sf,
+               refdate, dtxyz, drxyz, dsf );
         rf->func = rff;
         rf->def = rdf;
+        rf->use_iersunits=iersunits;
     }
     else if( bad )
     {

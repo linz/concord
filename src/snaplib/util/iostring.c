@@ -21,6 +21,7 @@
 #include "util/pi.h"
 #include "util/errdef.h"
 #include "util/iostring.h"
+#include "util/string.h"
 
 static char rcsid[]="$Id: iostring.c,v 1.4 2004/04/22 02:35:25 ccrook Exp $";
 
@@ -101,6 +102,21 @@ int next_string_field( input_string_def *is, char *buf, int nbuf )
 
     buf[length] = 0;
     return OK;
+}
+
+int test_next_string_field( input_string_def *is, const char *test )
+{
+    int length;
+    char *start;
+    double loc;
+    int sts;
+
+    loc = get_string_loc(is);
+    sts = read_next_field( is, &start, &length );
+    if( sts != OK ) return 0;
+    if( strlen(test) == length && _strnicmp(test,start,length)==0 ) return 1;
+    set_string_loc(is,loc);
+    return 0;
 }
 
 int skip_string_field( input_string_def *is )

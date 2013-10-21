@@ -71,9 +71,18 @@ typedef struct
     double txyz[3];    /* The translation components (m) */
     double rxyz[3];    /* The rotation components (sec)  */
     double scale;      /* The scale factor (ppm)         */
-    double csrot[3];   /* The cosine of the rotations    */
-    double snrot[3];   /* The sine of the rotations      */
-    double ratio;      /* The scale as a ratio           */
+    double dtxyz[3];   /* The rate of change of translation components (m/yr) */
+    double drxyz[3];   /* The rate of change of rotation components (sec/yr)  */
+    double dscale;     /* The rate of change of scale factor (ppm/yr) */
+    double refdate;    /* The date at which the translation, 
+                          rotation, and scale apply (years) */
+    double calcdate;   /* Date at which the calculation values apply */
+    double trans[3];   /* Translations applying at the date */
+    double csrot[3];   /* Cosine of rotations at calculation date */
+    double snrot[3];   /* Sine of rotations at calculation date */
+    double sclfct;     /* Scale factor applying at calculation date */
+    int use_rates;     /* Non-zero if have time dependent transformations */
+    int use_iersunits; /* Non-zero if using IERS units mm, mas, ppb */
     ref_frame_func *func;
     /* Non-standard reference frame conversion function */
     ref_deformation *def; /* Deformation function */
@@ -88,8 +97,8 @@ struct ref_frame_func_s
     int (*describe_func)(ref_frame *rf, output_string_def *os );
     void *(*copy_func)(void *data);
     int (*identical)(void *data1, void *data2);
-    int (*xyz_to_std_func)( ref_frame *rf, double xyz[3] );
-    int (*std_to_xyz_func)( ref_frame *rf, double xyz[3] );
+    int (*xyz_to_std_func)( ref_frame *rf, double xyz[3], double date );
+    int (*std_to_xyz_func)( ref_frame *rf, double xyz[3], double date );
 };
 
 struct ref_deformation_s
@@ -143,6 +152,8 @@ typedef struct
 
 /* Definition of a coordinate conversion */
 
+#define CONVERRSIZE 256
+
 typedef struct
 {
     coordsys *from;    /* Source reference frame */
@@ -160,6 +171,7 @@ typedef struct
     char     to_prj;   /* Need to convert coords back to projection */
     char     from_geoc; /* Input system is geocentric */
     char     to_geoc;   /* Output system is geocentric */
+    char     errmsg[CONVERRSIZE]; /* Last error message */;
 } coord_conversion;
 
 /*====================================================================*/
@@ -191,7 +203,8 @@ void delete_ellipsoid( ellipsoid *el );
 
 ref_frame *create_ref_frame( const char *code, const char *name,
                              ellipsoid *el,
-                             const char *refcode, double txyz[3], double rxyz[3], double scale );
+                             const char *refcode, double txyz[3], double rxyz[3], double scale,
+                             double refdate, double dtxyz[3], double drxyz[3], double dscale );
 ref_frame *copy_ref_frame( ref_frame *rf );
 void delete_ref_frame( ref_frame *rf );
 
@@ -201,7 +214,7 @@ void delete_ref_frame_func( ref_frame_func *rff );
 ref_deformation *copy_ref_deformation( ref_deformation *rdf );
 void delete_ref_deformation( ref_deformation *rdf );
 
-void init_ref_frame( ref_frame *rf );
+void init_ref_frame( ref_frame *rf, double convepoch );
 
 /* Routines relating to projections */
 /* This could go to a private header file */
@@ -271,20 +284,27 @@ projection *parse_projection_def( input_string_def *is );
 coordsys   *parse_coordsys_def  ( input_string_def *is,
                                   ref_frame *(*getrf)(const char *code ));
 
+int parse_crdsys_epoch( const char *epochstr, double *epoch );
+
 /*=====================================================================*/
 /* Getting information about components of coordinate systems.         */
 /* Return 1 for true, 0 otherwise.                                     */
 /* Related coordinate systems have the same reference frame, but need  */
 /* not be of the same type                                             */
 /* Identical datum may be the same reference frame but at a different  */
-/* epoch                                                               */
+/* epoch (in terms of deformation)                                     */
 /* Note that identical coordinate systems does not test the range or   */
 /* the units of the coordinate system.                                 */
+/* datum_transformation_needs_date - note that this is not a related   */
+/* to deformation, which is date transformations within the datum, but */
+/* to transformations between different datums                         */
+/*=====================================================================*/
 
 int  related_coordinate_systems( coordsys *c1, coordsys *c2 );
 int  identical_coordinate_systems( coordsys *c1, coordsys *c2 );
 int  identical_ref_frame_axes( ref_frame *rf1, ref_frame *rf2 );
 int  identical_datum( ref_frame *rf1, ref_frame *rf2 );
+int  datum_transformation_needs_date( ref_frame *rf1, ref_frame *rf2 );
 int  identical_ref_frame_func( ref_frame_func *rff1, ref_frame_func *rff2 );
 int  identical_ref_deformation( ref_deformation *def1, ref_deformation *def2 );
 int  identical_ellipsoids( ellipsoid *el1, ellipsoid *el2 );
@@ -309,8 +329,8 @@ int ll_coords_in_range( coordsys *cs, double *lon, double *lat );
 /* Conversion of geocentric coordinates to and from the standard
   reference frame */
 
-int xyz_to_std( ref_frame *rf, double xyz[3] );
-int std_to_xyz( ref_frame *rf, double xyz[3] );
+int xyz_to_std( ref_frame *rf, double xyz[3], double date );
+int std_to_xyz( ref_frame *rf, double xyz[3], double date );
 
 /* Deformation calculations */
 
