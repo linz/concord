@@ -59,15 +59,15 @@ typedef struct
 	it will be.  Coordinate transformations are permitted only between systems
 	with a common reference system */
 
+typedef struct ref_frame_s ref_frame;
 typedef struct ref_frame_func_s ref_frame_func;
 typedef struct ref_deformation_s ref_deformation;
 
-typedef struct
+struct ref_frame_s
 {
     char *code;        /* Code for the reference frame   */
     char *name;        /* Name of the frame              */
     ellipsoid *el;     /* Ellipsoid defined for the frame*/
-    char *refcode;     /* Base system code or NULL       */
     double txyz[3];    /* The translation components (m) */
     double rxyz[3];    /* The rotation components (sec)  */
     double scale;      /* The scale factor (ppm)         */
@@ -83,10 +83,13 @@ typedef struct
     double sclfct;     /* Scale factor applying at calculation date */
     int use_rates;     /* Non-zero if have time dependent transformations */
     int use_iersunits; /* Non-zero if using IERS units mm, mas, ppb */
+    char *refcode;     /* Base system code or NULL       */
+    ref_frame *refrf;  /* Base system reference frame definition */
     ref_frame_func *func;
     /* Non-standard reference frame conversion function */
+    double defepoch;      /* The reference epoch of the deformation model */
     ref_deformation *def; /* Deformation function */
-} ref_frame;
+};
 
 struct ref_frame_func_s
 {
@@ -136,7 +139,6 @@ typedef struct
     projection *prj;   /* The projection - if any            */
     char crdtype;      /* As per CSTP_ enum above            */
     char gotrange;     /* Defines whether a valid range has  */
-    double epoch;      /* The epoch of the coordinate system */
     double emin, nmin; /* Easting northing limits - if defined */
     double emax, nmax;
     double ltmin, lnmin;  /* Latitude/longitude range */
@@ -153,25 +155,32 @@ typedef struct
 /* Definition of a coordinate conversion */
 
 #define CONVERRSIZE 256
+#define CONVMAXRF 5
+
+typedef struct
+{
+    ref_frame *rf;              /* Reference frame in which conversion is defined */
+    int xyz_to_std;             /* Defines direction, 1 for xyz->base, -1 for base->xyz, 
+                                   0 for don't apply (used when only applying deformation) */
+    int need_xyz;               /* Need geocentric at end of step (next rf has different ellipsoid ) */
+} coord_conversion_rf;
 
 typedef struct
 {
     coordsys *from;    /* Source reference frame */
     coordsys *to;      /* Target reference frame */
-    double   epochfrom; /* Source epoch */
-    double   epochto;   /* Target epoch */
-    double   epochconv; /* Conversion epoch (applicable where from/to defm models differ */
-    char     from_def;    /* Flags whether the conversion will respect deformation models */
-    char     to_def;      /* 1=apply to llh, 2=apply to xyz */
     char     valid;    /* Flags whether a conversion is possible */
+    double   epochconv; /* Conversion epoch */
+    char     needsepoch; /* Flags whether the conversion needs an epoch defined */
     char     from_prj; /* Need projection of from system */
-    char     from_el;  /* Need to convert from coords to geocentric */
-    char     conv_rf;  /* Flags whether the reference frame needs to be converted */
-    char     to_el;    /* Need to convert to coords back to ellipsoid */
     char     to_prj;   /* Need to convert coords back to projection */
     char     from_geoc; /* Input system is geocentric */
     char     to_geoc;   /* Output system is geocentric */
+    char     need_xyz;  /* Need xyz before first reference frame tfm */
     char     errmsg[CONVERRSIZE]; /* Last error message */;
+    coord_conversion_rf crf[CONVMAXRF]; /* Conversion rf steps */
+    int      ncrf;      /* Number of steps used */
+
 } coord_conversion;
 
 /*====================================================================*/
@@ -241,9 +250,9 @@ coordsys *copy_coordsys( coordsys *cs );
 coordsys *related_coordsys( coordsys *cs, int type );
 void delete_coordsys( coordsys *cs );
 
-/* Define the epoch for the coordinate system */
+/* Define the reference epoch for the coordinate system deformation model */
 
-void define_coordsys_epoch( coordsys *cs, double epoch );
+void define_deformation_model_epoch( coordsys *cs, double epoch );
 
 /* For projection coordinate systems emin, nmin, emax, and nmax are
    obvious.  For geodetic coordinate systems the parameters are
@@ -276,13 +285,15 @@ int check_coordsys_range( coordsys *cs, double xyz[3] );
 
 ellipsoid  *parse_ellipsoid_def ( input_string_def *is, int embedded );
 ref_frame  *parse_ref_frame_def ( input_string_def *is,
-                                  ellipsoid *(*getel)(const char *code ), int embedded );
+                                  ellipsoid *(*getel)(const char *code ), 
+                                  ref_frame *(*getrf)(const char *code, int loadref ), 
+                                  int embedded, int loadref );
 int parse_ref_frame_func_def ( input_string_def *is, ref_frame_func **rff );
 int parse_ref_deformation_def ( input_string_def *is, ref_deformation **rdf );
 
 projection *parse_projection_def( input_string_def *is );
 coordsys   *parse_coordsys_def  ( input_string_def *is,
-                                  ref_frame *(*getrf)(const char *code ));
+                                  ref_frame *(*getrf)(const char *code, int loadref ));
 
 int parse_crdsys_epoch( const char *epochstr, double *epoch );
 
@@ -291,20 +302,16 @@ int parse_crdsys_epoch( const char *epochstr, double *epoch );
 /* Return 1 for true, 0 otherwise.                                     */
 /* Related coordinate systems have the same reference frame, but need  */
 /* not be of the same type                                             */
-/* Identical datum may be the same reference frame but at a different  */
-/* epoch (in terms of deformation)                                     */
+/* Identical datum may be the same reference frame but with a different*/
+/* deformation model or reference epoch                                */
 /* Note that identical coordinate systems does not test the range or   */
 /* the units of the coordinate system.                                 */
-/* datum_transformation_needs_date - note that this is not a related   */
-/* to deformation, which is date transformations within the datum, but */
-/* to transformations between different datums                         */
 /*=====================================================================*/
 
 int  related_coordinate_systems( coordsys *c1, coordsys *c2 );
 int  identical_coordinate_systems( coordsys *c1, coordsys *c2 );
 int  identical_ref_frame_axes( ref_frame *rf1, ref_frame *rf2 );
 int  identical_datum( ref_frame *rf1, ref_frame *rf2 );
-int  datum_transformation_needs_date( ref_frame *rf1, ref_frame *rf2 );
 int  identical_ref_frame_func( ref_frame_func *rff1, ref_frame_func *rff2 );
 int  identical_ref_deformation( ref_deformation *def1, ref_deformation *def2 );
 int  identical_ellipsoids( ellipsoid *el1, ellipsoid *el2 );
@@ -315,6 +322,7 @@ int is_geodetic( coordsys *cs );
 int is_geocentric( coordsys *cs );
 
 int has_deformation_model( coordsys *cs );
+double deformation_model_epoch( coordsys *cs );
 
 /* Coordinates in range check functions.  Note that the latitude/longitude
    functions take pointers to the lat and long, as the longitude may be

@@ -59,7 +59,15 @@ char *unread_string( input_string_def *is );
 void report_string_error( input_string_def *is, int status, char *message );
 
 int write_output_string( output_string_def *os, const char *s );
+int write_output_string2( output_string_def *os, const char *s, int options, const char *prefix );
 void output_string_to_file( output_string_def *os, FILE *f );
+
+#define OSW_TRIMR      1
+#define OSW_TRIML      2
+#define OSW_SKIPBLANK  4
+
+#define OSW_TRIM       3
+#define OSW_CLEAN      7
 
 #endif
 

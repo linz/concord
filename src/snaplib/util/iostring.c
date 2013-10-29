@@ -229,6 +229,60 @@ int write_output_string( output_string_def *os, const char *s )
     return FILE_WRITE_ERROR;
 }
 
+int write_output_string2( output_string_def *os, const char *s, int options, const char *prefix )
+{
+    if( ! os->write ) return FILE_WRITE_ERROR;
+    const char *ptrs;
+    const char *ptre;
+    int triml = options & OSW_TRIML;
+    int trimr = options & OSW_TRIMR;
+    int skipblank = options & OSW_SKIPBLANK;
+    ptrs = s;
+    while( *ptrs )
+    {
+        const char *start;
+        int nch;
+        ptre=ptrs;
+        start=ptrs;
+        if( triml ) while( *start && *start != '\n' && isspace(*start)) start++;
+        if( ! *start ) break;
+        if( *start == '\n' )
+        {
+            nch=0;
+            ptrs=start;
+        }
+        else
+        {
+            nch=0;
+            ptre=start;
+            while( *ptre && *ptre != '\n' )
+            {
+                if( ! isspace(*ptre) ) nch=ptre-start+1;
+                ptre++;
+            }
+            if( ! trimr ) nch=ptre-start;
+            ptrs = ptre;
+        }
+        if( nch > 0 || ! skipblank )
+        {
+            if( nch && prefix ) write_output_string(os,prefix);
+            while( nch > 0 )
+            {
+                char buffer[33];
+                int ncopy = nch > 32 ? 32 : nch;
+                strncpy( buffer,start,ncopy );
+                buffer[ncopy]=0;
+                write_output_string(os,buffer);
+                start += ncopy;
+                nch -= ncopy;
+            }
+            write_output_string(os,"\n");
+        }
+        if( *ptrs ) ptrs++;
+    }
+    return 0;
+}
+
 static int sfputs( const char *s, void *f )
 {
     return (int) fputs( s, (FILE *) f );

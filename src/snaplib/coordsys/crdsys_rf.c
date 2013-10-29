@@ -57,8 +57,9 @@ ref_frame *create_ref_frame( const char *code, const char *name, ellipsoid *el,
     rf->name = copy_string( name );
     rf->el = el;
     rf->refcode = copy_string( refcode );
+    if( rf->refcode ) _strupr( rf->refcode );
+    rf->refrf = 0;
     rf->refdate = refdate;
-    _strupr( rf->refcode );
     use_rates=0;
     for( i=0; i<3; i++ )
     {
@@ -75,6 +76,7 @@ ref_frame *create_ref_frame( const char *code, const char *name, ellipsoid *el,
     rf->use_iersunits = 0;
     rf->func = NULL;
     rf->def = NULL;
+    rf->defepoch = 0.0;
     rf->calcdate=0;
     init_ref_frame( rf, refdate );
     return rf;
@@ -95,9 +97,17 @@ ref_frame *copy_ref_frame( ref_frame *rf )
     {
         rf1->use_iersunits=rf->use_iersunits;
     }
-    if( !rf1 ) delete_ellipsoid( el );
-    if( rf1 ) { rf1->func = copy_ref_frame_func( rf->func ); }
-    if( rf1 ) { rf1->def = copy_ref_deformation( rf->def ); }
+    if( rf1 ) 
+    { 
+        rf1->func = copy_ref_frame_func( rf->func );
+        rf1->def = copy_ref_deformation( rf->def );
+        rf1->defepoch = rf->defepoch;
+        rf1->refrf = copy_ref_frame( rf1->refrf );
+    }
+    else
+    {
+        delete_ellipsoid( el );
+    }
     return rf1;
 }
 
@@ -109,10 +119,12 @@ void delete_ref_frame( ref_frame *rf )
     rf->func = 0;
     if( rf->def ) delete_ref_deformation( rf->def);
     rf->def = 0;
+    if( rf->refrf ) delete_ref_frame( rf->refrf );
+    rf->refrf = 0;
     delete_ellipsoid( rf->el );
     check_free( rf->code );
     check_free( rf->name );
-    check_free( rf->refcode );
+    if( rf->refcode ) { check_free( rf->refcode ); rf->refcode=0; }
     check_free( rf );
 }
 
@@ -122,41 +134,31 @@ int identical_ref_frame_axes( ref_frame *rf1, ref_frame *rf2 )
     int i;
     if( ! identical_datum( rf1, rf2 )  ) return 0;
     if( ! identical_ref_deformation(rf1->def,rf2->def)) return 0;
+    if( rf1->def && rf1->defepoch != rf2->defepoch ) return 0;
     return 1;
 }
 
 int identical_datum( ref_frame *rf1, ref_frame *rf2 )
 {
     int i;
-    if( strcmp(rf1->refcode,rf2->refcode) != 0 ) return 0;
-    if( rf1->refdate != rf2->refdate ) return 0;
-    for( i=0; i<3; i++ )
+    if( rf1->refcode && ! rf2->refcode ) return 0;
+    if( ! rf1->refcode && rf2->refcode ) return 0;
+    /* If no reference frame code then transformations are meaningless */
+    if( rf1->refcode )
     {
-        if( rf1->txyz[i] != rf2->txyz[i] ) return 0;
-        if( rf1->rxyz[i] != rf2->rxyz[i] ) return 0;
-        if( rf1->dtxyz[i] != rf2->dtxyz[i] ) return 0;
-        if( rf1->drxyz[i] != rf2->drxyz[i] ) return 0;
+        if( strcmp(rf1->refcode,rf2->refcode) != 0 ) return 0;
+        if( rf1->refdate != rf2->refdate ) return 0;
+        for( i=0; i<3; i++ )
+        {
+            if( rf1->txyz[i] != rf2->txyz[i] ) return 0;
+            if( rf1->rxyz[i] != rf2->rxyz[i] ) return 0;
+            if( rf1->dtxyz[i] != rf2->dtxyz[i] ) return 0;
+            if( rf1->drxyz[i] != rf2->drxyz[i] ) return 0;
+        }
+        if( rf1->scale != rf2->scale ) return 0;
+        if( rf1->dscale != rf2->dscale ) return 0;
+        if( ! identical_ref_frame_func(rf1->func,rf2->func)) return 0;
     }
-    if( rf1->scale != rf2->scale ) return 0;
-    if( rf1->dscale != rf2->dscale ) return 0;
-    if( ! identical_ref_frame_func(rf1->func,rf2->func)) return 0;
     return 1;
 }
-
-int datum_transformation_needs_date( ref_frame *rf1, ref_frame *rf2 )
-{
-    int i;
-    /* May need to add a tolerance to this ... */
-    for( i=0; i<3; i++ )
-    {
-        if( rf1->dtxyz[i] != rf2->dtxyz[i] ) return 1;
-        if( rf1->drxyz[i] != rf2->drxyz[i] ) return 1;
-    }
-    if( rf1->dscale != rf2->dscale ) return 1;
-    /* Strictly should also test whether the dates are need for the 
-     * reference frame functions
-     */
-    return 0;
-}
-
 

@@ -45,16 +45,6 @@ WGS84 "World Geodetic System 1984 Ellipsoid (WGS84)" 6378137 298.257223563
 ! and the rates of change of each of the parameters.
 
 [reference_frames]
-
-CHAT1979 "Chatham 1979" ELLIPSOID INTERNATIONAL BASE1 174.05 -25.49 112.57 0 0 -0.554 0.2263
-FIJI "Fiji datum" ELLIPSOID WGS72 FIJI 0 0 0 0 0 0 0
-
-NZGD1949 "New Zealand Geodetic Datum 1949 (NZGD49)" ELLIPSOID INTERNATIONAL &
-   BASE1 59.47 -5.04 187.44 -0.47 0.1 -1.024 -4.5993 GRID &
-   SNAP2D def492kt.grd "LINZ NZGD49-NZGD2000 conversion grid"
-
-NZGD49_DMA "New Zealand Geodetic Datum 1949 (DMA 3 parameter model)" ELLIPSOID INTERNATIONAL BASE1 84 -22 209 0 0 0 0
-
 NZGD2000 "New Zealand Geodetic Datum 2000" ELLIPSOID GRS80 BASE1 0 0 0 0 0 0 0 &
    DEFORMATION 2000.0 LINZDEF nzgd2000_def20130801l.bin
 
@@ -63,12 +53,8 @@ RSRGD2000 "Ross Sea Region Geodetic Datum 2000" ELLIPSOID GRS80 BASE1 0 0 0 0 0 
 WGS72 "World Geodetic System 1972 (WGS72)" ELLIPSOID WGS72 BASE1 0 0 4.5 0 0 -0.554 0.219
 WGS84 "World Geodetic System 1984 (WGS84)" ELLIPSOID WGS84 BASE1 0 0 0 0 0 0 0
 
-! GRS80 "Geodetic Referency System 1980" ELLIPSOID GRS80 BASE1 0 0 0 0 0 0 0
 
-! Camp area datum - no established relationship with another datum (reference datum=CAMPAREA)
-CAMPAREA "Camp area datum (International ellipsoid)" ELLIPSOID INTERNATIONAL CAMPAREA 0 0 0 0 0 0 0
-
-ITRF96 "International Terrestrial Reference Frame 1996" ELLIPSOID GRS80 BASE1 0 0 0 0 0 0 0 
+ITRF96 "International Terrestrial Reference Frame 1996" ELLIPSOID GRS80 BASE1 0 0 0 0 0 0 0
 
 ITRF2008 "International Terrestrial Reference Frame 2008" ELLIPSOID GRS80 &
    BASE1 IERS      4.8    2.09  -17.67  -0.16508   0.26897   0.11984   1.40901 &
@@ -84,6 +70,20 @@ ITRF2000 "International Terrestrial Reference Frame 2000" ELLIPSOID GRS80 &
 ITRF97 "International Terrestrial Reference Frame 1997" ELLIPSOID GRS80 &
    BASE1 IERS   -0     -0.51   15.53  -0.16508   0.26897   0.05984   -1.51099 &
    RATES 2000.0  0.69  -0.1     1.86  -0.01347   0.01514  -0.00027   -0.19201 
+
+CHAT1979 "Chatham 1979" ELLIPSOID INTERNATIONAL BASE1 174.05 -25.49 112.57 0 0 -0.554 0.2263
+FIJI "Fiji datum" ELLIPSOID WGS72 FIJI 0 0 0 0 0 0 0
+
+NZGD1949 "New Zealand Geodetic Datum 1949 (NZGD49)" ELLIPSOID INTERNATIONAL &
+   NZGD2000 59.47 -5.04 187.44 -0.47 0.1 -1.024 -4.5993 GRID &
+   SNAP2D def492kt.grd "LINZ NZGD49-NZGD2000 conversion grid"
+
+NZGD49_DMA "New Zealand Geodetic Datum 1949 (DMA 3 parameter model)" ELLIPSOID INTERNATIONAL BASE1 84 -22 209 0 0 0 0
+
+! Camp area datum - no established relationship with another datum (reference datum=CAMPAREA)
+
+CAMPAREA "Camp area datum (International ellipsoid)" ELLIPSOID INTERNATIONAL NONE
+
 
 ! Transformation parameters from AGD66 and AGD84 to WGS84 (approx GDA94) from GDA technical 
 ! manual

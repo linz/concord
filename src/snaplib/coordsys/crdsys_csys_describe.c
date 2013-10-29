@@ -28,7 +28,7 @@ int  describe_ellipsoid( output_string_def *os, ellipsoid *el )
     if( !el ) return OK;
     write_output_string( os, "Ellipsoid: ");
     write_output_string( os, el->name );
-    sprintf(out,"\n   a = %.3lf  1/f = %.6lf\n",el->a,el->rf);
+    sprintf(out,"\n  a = %.3lf  1/f = %.6lf\n",el->a,el->rf);
     write_output_string( os, out );
     return OK;
 }
@@ -73,9 +73,9 @@ int  describe_ref_frame( output_string_def *os, ref_frame *rf )
         double af=rf->use_iersunits ? -1000.0 : 1.0;
         const char **components=rf->use_iersunits ? iers_components : std_components;
         const char **units=rf->use_iersunits ? iers_units : std_units;
-        char *format1="  %-14s %8s  %10.5lf %10.5lf %10.5lf\n";
-        char *format2="  %-14s %8s  %10.5lf\n";
-        char *format3="  %-14s %8s  %7.2lf\n";
+        char *format1="    %-14s %8s  %10.5lf %10.5lf %10.5lf\n";
+        char *format2="    %-14s %8s  %10.5lf\n";
+        char *format3="    %-14s %8s  %7.2lf\n";
         int rates = rf->use_rates;
 
         write_output_string( os, "  Relative to ");
@@ -83,7 +83,7 @@ int  describe_ref_frame( output_string_def *os, ref_frame *rf )
         write_output_string( os, "\n" );
         if( rates )
         {
-            sprintf(out,format3,"Reference date","(year)",rf->refdate);
+            sprintf(out,format3,"    Reference date","(year)",rf->refdate);
             write_output_string( os, out );
         }
         if( translation )
@@ -146,7 +146,7 @@ int describe_projection( output_string_def *os, projection *prj )
     if( prj->type->nparams )
     {
         print_param_list( os, prj->type->params, prj->type->nparams,
-                          prj->data, "   ");
+                          prj->data, "  ");
     }
     return OK;
 }
@@ -157,11 +157,11 @@ int  describe_coordsys(  output_string_def *os, coordsys *cs )
     write_output_string( os, cs->name );
     write_output_string( os, "\n" );
     describe_ref_frame( os, cs->rf );
-    if( has_deformation_model(cs) && cs->epoch != 0.0)
+    if( has_deformation_model(cs) && cs->rf->defepoch != 0.0)
     {
         char buf[32];
         write_output_string(os,"Calculated at epoch ");
-        sprintf(buf,"%.1lf\n",cs->epoch);
+        sprintf(buf,"%.1lf\n",cs->rf->defepoch);
         write_output_string(os,buf);
     }
     describe_projection( os, cs->prj );
