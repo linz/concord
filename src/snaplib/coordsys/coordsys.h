@@ -159,10 +159,10 @@ typedef struct
 
 typedef struct
 {
-    ref_frame *rf;              /* Reference frame in which conversion is defined */
-    int xyz_to_std;             /* Defines direction, 1 for xyz->base, -1 for base->xyz, 
-                                   0 for don't apply (used when only applying deformation) */
-    int need_xyz;               /* Need geocentric at end of step (next rf has different ellipsoid ) */
+    ref_frame *rf;        /* Reference frame in which conversion is defined */
+    char xyz_to_std;      /* Direction, 1 for xyz->base, 0 for base->xyz */
+    char def_only;        /* Set if only need to apply deformation, not rf axes trans */
+    char need_xyz;        /* Need geocentric at end of step (next rf has different ellipsoid ) */
 } coord_conversion_rf;
 
 typedef struct

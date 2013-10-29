@@ -51,13 +51,11 @@ int define_coord_conversion_epoch( coord_conversion *conv,
     conv->errmsg[0] = 0;
     conv->need_xyz = 0;
 
-    /* If using the same reference frame then conversions are valid */
-    conv->valid = strcmp(from->rf->code,to->rf->code) == 0;
+    conv->valid = 0;
 
     /* If not using the same the must have common base reference frame codes,
      */
 
-    if( ! conv->valid )
     {
         char *common_rf=0;
         char *from_code=from->rf->code;
@@ -136,17 +134,21 @@ int define_coord_conversion_epoch( coord_conversion *conv,
             ref_frame *crf=from->rf;
             ref_frame *nextrf;
             int i;
+            int needsepoch=0;
+
             for( i=0; i<nfrom; i++, crf=crf->refrf )
             {
                 conv->crf[i].rf=crf;
                 conv->crf[i].xyz_to_std=1;
+                conv->crf[i].def_only=0;
                 conv->crf[i].need_xyz=0;
             }
             crf=to->rf;
             for( i=nto; i-- > 0; crf=crf->refrf )
             {
                 conv->crf[i+nfrom].rf=crf;
-                conv->crf[i+nfrom].xyz_to_std=-1;
+                conv->crf[i+nfrom].xyz_to_std=0;
+                conv->crf[i+nfrom].def_only=0;
                 conv->crf[i+nfrom].need_xyz=0;
             }
             /* If we are changing epoch, then the common reference frame is
@@ -155,8 +157,8 @@ int define_coord_conversion_epoch( coord_conversion *conv,
              */
             if( changeepoch )
             {
-                conv->crf[nfrom-1].xyz_to_std=0;
-                conv->crf[nfrom].xyz_to_std=0;
+                conv->crf[nfrom-1].def_only=1;
+                conv->crf[nfrom].def_only=1;
             }
             conv->ncrf=nfrom+nto;
             conv->valid = 1;
@@ -164,29 +166,35 @@ int define_coord_conversion_epoch( coord_conversion *conv,
             nextrf=to->rf;
             for( i=conv->ncrf; i--;)
             {
-                int ia;
                 crf=conv->crf[i].rf;
 
                 /* Check  whether changing ellipsoid, so must have xyz coords */
                 if( ! identical_ellipsoids(crf->el,nextrf->el) ) conv->crf[i].need_xyz=1;
                 nextrf=crf;
-                if( crf->def && conv->crf[i].xyz_to_std != 0) conv->needsepoch=1;
-                for( ia=0; ia<3; ia++)
+                if( ! needsepoch && ! conv->crf[i].def_only )
                 {
-                    if( crf->dtxyz[ia] != 0.0 ) conv->needsepoch=1;
-                    if( crf->drxyz[ia] != 0.0 ) conv->needsepoch=1;
+                    int ia;
+                    if( crf->def ||
+                            crf->dtxyz[0] != 0.0 ||
+                            crf->dtxyz[1] != 0.0 ||
+                            crf->dtxyz[2] != 0.0 ||
+                            crf->drxyz[0] != 0.0 ||
+                            crf->drxyz[1] != 0.0 ||
+                            crf->drxyz[2] != 0.0 ||
+                            crf->dscale != 0.0 )
+                        needsepoch =1;
                 }
-                if( crf->dscale != 0 ) conv->needsepoch=1;
             }
             if( ! identical_ellipsoids(from->rf->el,nextrf->el) ) conv->need_xyz=1;
 
-            if( conv->needsepoch && convepoch==0.0 )
+            if( needsepoch && convepoch==0.0 )
             {
                 conv->valid=0;
                 sprintf(conv->errmsg,
                     "Conversion between reference frames %.20s and %.20s requires a date",
                     from->rf->code, to->rf->code);
             }
+            conv->needsepoch = needsepoch;
         }
     }
 
@@ -277,49 +285,55 @@ int convert_coords( coord_conversion *conv,
         {
             coord_conversion_rf *crf = &(conv->crf[i]);
             ref_frame *rf=crf->rf;
-            int xtos=crf->xyz_to_std;
-            int needxyz=crf->need_xyz;
+            int defonly=crf->def_only;
 
             /* If the system has a deformation model to apply */
-            if( xtos >= 0 && rf->def )
+            if( crf->xyz_to_std )
             {
-                double tgtepoch=xtos > 0 ? conv->epochconv : 0.0;
-                if( isgeoc ){ xyz_to_llh( rf->el, xyz, xyz ); isgeoc=0; }
-                if( tgtepoch != rf->defepoch )
+                if( rf->def )
                 {
-                    if( geoid ){ int ia; for( ia=0; ia<3; ia++ ) gllh[i]-=xyz[i]; }
-                    sts=apply_ref_deformation_llh( rf, xyz, rf->defepoch, tgtepoch );
+                    double tgtepoch= defonly ? 0.0 : conv->epochconv;
+                    if( isgeoc ){ xyz_to_llh( rf->el, xyz, xyz ); isgeoc=0; }
+                    if( tgtepoch != rf->defepoch )
+                    {
+                        if( geoid ){ int ia; for( ia=0; ia<3; ia++ ) gllh[i]-=xyz[i]; }
+                        sts=apply_ref_deformation_llh( rf, xyz, rf->defepoch, tgtepoch );
+                        if( sts != OK ) break;
+                        if( geoid ){ int ia; for( ia=0; ia<3; ia++ ) gllh[i]+=xyz[i]; }
+                    }
+                }
+                /*  Apply change to reference frame axes */
+                if( ! defonly )
+                {
+                    if( ! isgeoc ){ llh_to_xyz( rf->el, xyz, xyz, 0, 0 ); isgeoc=1; }
+                    sts = xyz_to_std( rf, xyz, conv->epochconv );
                     if( sts != OK ) break;
-                    if( geoid ){ int ia; for( ia=0; ia<3; ia++ ) gllh[i]+=xyz[i]; }
                 }
             }
-            /*  Apply change to reference frame axes */
-            if( xtos > 0)
+            else 
             {
-                if( ! isgeoc ){ llh_to_xyz( rf->el, xyz, xyz, 0, 0 ); isgeoc=1; }
-                sts = xyz_to_std( rf, xyz, conv->epochconv );
-            }
-            else if( xtos < 0)
-            {
-                if( ! isgeoc ){ llh_to_xyz( rf->el, xyz, xyz, 0, 0 ); isgeoc=1; }
-                sts = std_to_xyz( rf, xyz, conv->epochconv );
-            }
-            if( sts != OK ) break;
-            /*  Apply deformation model */
-            if( xtos <= 0 && rf->def )
-            {
-                double srcepoch=xtos < 0 ? conv->epochconv : 0.0;
-                if( isgeoc ){ xyz_to_llh( rf->el, xyz, xyz ); isgeoc=0; }
-                if( srcepoch != rf->defepoch )
+                if( ! defonly )
                 {
-                    if( geoid ){ int ia; for( ia=0; ia<3; ia++ ) gllh[i]-=xyz[i]; }
-                    sts=apply_ref_deformation_llh( rf, xyz, srcepoch, rf->defepoch );
+                    if( ! isgeoc ){ llh_to_xyz( rf->el, xyz, xyz, 0, 0 ); isgeoc=1; }
+                    sts = std_to_xyz( rf, xyz, conv->epochconv );
                     if( sts != OK ) break;
-                    if( geoid ){ int ia; for( ia=0; ia<3; ia++ ) gllh[i]+=xyz[i]; }
+                }
+                /*  Apply deformation model */
+                if( rf->def )
+                {
+                    double srcepoch=defonly ? 0.0 : conv->epochconv;
+                    if( isgeoc ){ xyz_to_llh( rf->el, xyz, xyz ); isgeoc=0; }
+                    if( srcepoch != rf->defepoch )
+                    {
+                        if( geoid ){ int ia; for( ia=0; ia<3; ia++ ) gllh[i]-=xyz[i]; }
+                        sts=apply_ref_deformation_llh( rf, xyz, srcepoch, rf->defepoch );
+                        if( sts != OK ) break;
+                        if( geoid ){ int ia; for( ia=0; ia<3; ia++ ) gllh[i]+=xyz[i]; }
+                    }
                 }
             }
 
-            if( needxyz && ! isgeoc )
+            if( crf->need_xyz && ! isgeoc )
             {
                 llh_to_xyz( rf->el, xyz, xyz, 0, 0 ); 
                 isgeoc=1;
