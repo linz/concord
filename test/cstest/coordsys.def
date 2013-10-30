@@ -21,7 +21,7 @@ NZGD1949 "New Zealand Geodetic Datum 1949 (NZGD49)" ELLIPSOID INTERNATIONAL &
    SNAP2D testrfgrid.grd "LINZ NZGD49-NZGD2000 conversion grid"
 NZGD2000 "New Zealand Geodetic Datum 2000" ELLIPSOID GRS80 WGS84 0 0 0 0 0 0 0
 
-NZGD2000D "New Zealand Geodetic Datum 2000" ELLIPSOID GRS80 WGS84 0 0 0 0 0 0 0  DEFORMATION 2000.0 VELGRID testgridef 2000.0
+NZGD2000D "New Zealand Geodetic Datum 2000" ELLIPSOID GRS80 WGS84 0 0 0 0 0 0 0  DEFORMATION VELGRID testgridef 2000.0
 
 TESTBW14 "Test 14 parameter BW reference frame" ELLIPSOID GRS80 &
     WGS84 100 -125 0 0 0 0 0  &

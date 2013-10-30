@@ -108,7 +108,6 @@ struct ref_deformation_s
 {
     char *type;
     void *data;
-    double conv_epoch;
     void (*delete_func)(void *data);
     void *(*copy_func)(void *data);
     int (*identical)(void *data1, void *data2);

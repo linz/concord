@@ -409,6 +409,12 @@ static int pause_output( void )
 {
     int c;
     int domore;
+    return 1;
+    /*
+     * No longer interested in pausing output - almost any terminal window
+     * these days will be scrollable...
+     */
+    /*
     if( ! _isatty(_fileno(stdout)) || ! _isatty(_fileno(stdin)) ) return 1;
     printf("Press return to continue: ");
     domore = 1;
@@ -419,6 +425,7 @@ static int pause_output( void )
     }
     while( c != '\n' && c != EOF );
     return domore;
+    */
 }
 
 static void help( void )
@@ -462,8 +469,9 @@ static void help( void )
     puts("the current date.");
     puts("For coordinate systems such as NZGD2000 which include a deformation model");
     puts("the coordinate system code used in the -I and -O parameters can include a");
-    puts("date, for example NZGD2000@20120512 applies the deformation model on");
-    puts("13 May 2012 rather than using the NZGD2000 reference coordinates.");
+    puts("date, for example NZGD2000@20120512 defines coordinates in terms of the");
+    puts("deformation model on 13 May 2012 rather than using the NZGD2000");
+    puts("reference coordinates.");
 }
 
 /*-------------------------------------------------------------------*/
@@ -908,13 +916,6 @@ static void prompt_for_parameters( void )
     prompt_for_proj(&output_cs,&output_dms,&output_ne,&output_h,&output_ortho,"output");
     prompt_for_number("    Enter number of decimal places for output",
                       &output_prec,0,15);
-    if( has_deformation_model(input_cs) && has_deformation_model(output_cs)
-            && input_cs->rf->def->conv_epoch != output_cs->rf->def->conv_epoch )
-    {
-        printf("\nInput and output coordinate systems have different default conversion epochs\n");
-        prompt_for_double("Specify the epoch at which the conversion should be applied",
-                          &conv_epoch);
-    }
     printf("\nEach point you convert can have a name.  If you want to use names you must\n");
     printf("specify the length of the longest name you want to use\n\n");
     id_length = 0;
