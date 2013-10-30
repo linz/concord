@@ -155,7 +155,7 @@ typedef struct
 /* Definition of a coordinate conversion */
 
 #define CONVERRSIZE 256
-#define CONVMAXRF 5
+#define CONVMAXRF 10
 
 typedef struct
 {

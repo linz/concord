@@ -74,10 +74,14 @@ OBJECTS = $(FILES:.c=.o)
 
 CFLAGS = -g -I$(SRC)/snaplib -I$(SRC)/snaplib/dbl4
 
+all: bin/concord reference_files
+
 bin/concord: $(OBJECTS)
 	rm -rf bin
 	mkdir bin
 	$(CC) $(OBJECTS) -lm -o bin/concord
+
+reference_files:
 	cp $(SRC)/coordsys/* bin
 	
 test: bin/concord
