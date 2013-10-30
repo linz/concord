@@ -304,6 +304,11 @@ Testing NZTM
 6 coordinates converted
 4 errors occurred reading or converting coordinates
 =======================
+Testing CITM2000
+
+7 coordinates converted
+3 errors occurred reading or converting coordinates
+=======================
 Testing UTM58
 
 7 coordinates converted
@@ -325,11 +330,6 @@ Testing CHAT1979
 3 errors occurred reading or converting coordinates
 =======================
 Testing CITM1979
-
-7 coordinates converted
-3 errors occurred reading or converting coordinates
-=======================
-Testing CITM2000
 
 7 coordinates converted
 3 errors occurred reading or converting coordinates

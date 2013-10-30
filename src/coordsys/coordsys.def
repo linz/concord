@@ -418,7 +418,7 @@ YORKTM1949 "Mount York Circuit 1949" REF_FRAME NZGD1949 &
 
 ! Offshore Island NZGD2000 projections
 
-CITM2000 "Chatham Islands Transverse Mercator 2000" REF_FRAME ITRF96 &
+CITM2000 "Chatham Islands Transverse Mercator 2000" REF_FRAME NZGD2000 &
           PROJECTION TM -176.5 0.0 1.0 3500000.0 10000000.0 1.0
 
 AKTM2000 "Auckland Islands Transverse Mercator 2000" REF_FRAME ITRF96 &
