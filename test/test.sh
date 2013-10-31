@@ -15,7 +15,7 @@ mkdir out
 ${concord} -Z > out/test_version.out 2>&1
 ${concord} -L > out/test_crdsys.out 2>&1
 
-# Example descriptive outptus 
+# Example descriptive outputs 
 
 ${concord} -L NZGD2000 > out/test_list_NZGD2000.out 2>&1
 ${concord} -L NZGD2000_XYZ > out/test_list_NZGD2000_XYZ.out 2>&1
@@ -26,8 +26,7 @@ ${concord} -L BAD1 > out/test_list_BAD1.out 2>&1
 ${concord} -L BAD2 > out/test_list_BAD2.out 2>&1
 ${concord} -L BAD4 > out/test_list_BAD4.out 2>&1
 
-echo Basic conversion with and without coordinate system conversion
-
+echo Basic conversion with and without output file
 
 ${concord} -iNZGD2000,NEH,H -oNZGD2000,NEH,H -N6 in/test1.in out/test1.out > out/test1.txt 2>&1
 ${concord} -iNZGD2000,NEH,H -oNZGD2000,NEH,H -N6 in/test1.in  > out/test2.txt 2>&1
@@ -189,6 +188,9 @@ ${concord} -INZGD2000,NE,D -oITRF2008,NEH,D -Y2010 -N8 -P8 in/test15.in out/test
 
 echo "======================================================================"
 echo "Checking test output"
+
+perl fix_output.pl out/*
+rm -f out/*.bak
 
 isok=Y
 echo  "Test errors" > test_diff.log
