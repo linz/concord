@@ -67,8 +67,7 @@ FILES=\
     ../src/snaplib/util/geodetic.c \
     ../src/snaplib/util/iostring.c \
     ../src/snaplib/util/license.c \
-    ../src/snaplib/util/linklist.c \
-    ../src/snaplib/util/string.c
+    ../src/snaplib/util/linklist.c 
 
 OBJECTS = $(FILES:.c=.o)
 
