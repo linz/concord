@@ -49,10 +49,12 @@ echo PS projection
 ${concord} -iWGS84,NEH,H -oANT_PS,NEH -N6 in/test1.in out/test7.out > out/test7.txt  2>&1
 
 echo Geoid calculation
-${concord} -iNZGD2000,NEH,H -oNZGD2000,NEO,H -gnzgtest09 -N6 in/test1.in out/test8.out > out/test8.txt 2>&1
+${concord} -iNZGD2000,NEH,H -oNZGD2000,NEO,H -gcstest/nzgtest09 -N6 in/test1.in out/test8.out > out/test8.txt 2>&1
 
 echo Default geoid - egm96 in this case
-${concord} -iNZGD2000,NEH,H -oNZGD2000,NEO,H -N6 in/test1.in out/test8a.out > out/test8a.txt 2>&1
+# Test no longer valid as geoid no longer automatically linked to coordsys.def.  Passes
+# by explicitly setting -g cstest/geoid
+${concord} -iNZGD2000,NEH,H -oNZGD2000,NEO,H -gcstest/geoid -N6 in/test1.in out/test8a.out > out/test8a.txt 2>&1
 
 echo Geoid calculation - invalid geoid
 ${concord} -iNZGD2000,NEH,H -oNZGD2000,NEO,H -N6 -gNoSuchGeoid in/test1.in out/test8b.out > out/test8b.txt 2>&1
@@ -65,7 +67,7 @@ ${concord} -iNZGD2000,NEH,H -oNZGD2000,NEH,D -N6 in/test1.in out/test10.out > ou
 
 ${concord} -iNZGD2000,NEH,H -oNZGD2000,ENH -N6 in/test1.in out/test11.out > out/test11.txt  2>&1
 
-${concord} -INZGD2000,ENH,D -oNZGD2000,ENO,H -gnzgtest09 -p5 in/test.lln out/test12.out > out/test12.txt 2>&1
+${concord} -INZGD2000,ENH,D -oNZGD2000,ENO,H -gcstest/nzgtest09 -p5 in/test.lln out/test12.out > out/test12.txt 2>&1
 
 echo Reference frame conversions
 

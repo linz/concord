@@ -81,7 +81,9 @@ bin/concord: $(OBJECTS)
 	$(CC) $(OBJECTS) -lm -o bin/concord
 
 reference_files:
-	cp $(SRC)/coordsys/* bin
+	rm -rf bin/linz
+	mkdir -p bin/linz/coordsys
+	cp $(SRC)/coordsys/* bin/linz/coordsys
 	
 test: bin/concord
 	cd ../test && sh test.sh
@@ -98,5 +100,5 @@ uninstall:
 
 install: bin/concord uninstall
 	mkdir $(INSTALLDIR)
-	cp bin/* $(INSTALLDIR)
+	cp -r bin/* $(INSTALLDIR)
 	ln -s $(INSTALLDIR)/concord $(SYMLINKDIR)/concord
