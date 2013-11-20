@@ -131,26 +131,26 @@ static void scan_coordsys_defs( crdsys_file_source *cfs )
             else if( _stricmp(code,REFFRAME_TAG) == 0 ) type = CS_REF_FRAME;
             else if( _stricmp(code,COORDSYS_TAG ) == 0 ) type = CS_COORDSYS;
             else if( _stricmp(code,COORDSYS_NOTE_TAG ) == 0 ) type = CS_COORDSYS_NOTE;
-			else if( _stricmp(code,REFFRAME_NOTE_TAG ) == 0 ) type = CS_REF_FRAME_NOTE;
-			else type = CS_INVALID;
+            else if( _stricmp(code,REFFRAME_NOTE_TAG ) == 0 ) type = CS_REF_FRAME_NOTE;
+            else type = CS_INVALID;
         }
         else if( type != CS_INVALID )
         {
             add_code( cfs, type, code, &loc );
-			if( type == CS_COORDSYS_NOTE || type == CS_REF_FRAME_NOTE )
-			{
+            if( type == CS_COORDSYS_NOTE || type == CS_REF_FRAME_NOTE )
+            {
                 /* Notes can refer to multiple codes - get a complete list */
-				while( next_string_field( is ,code, CRDSYS_CODE_LEN+1 ) == OK )
-				{
-					add_code( cfs, type, code, &loc );
-				}
-				/* Notes continue to a line ending end_note ... */
-				while( df_read_data_file( cfs->df ) == OK )
-				{
-					is =  df_input_string( cfs->df );
-					if( test_next_string_field( is, END_NOTE_MARKER )) break;
-				}
-			}
+                while( next_string_field( is ,code, CRDSYS_CODE_LEN+1 ) == OK )
+                {
+                    add_code( cfs, type, code, &loc );
+                }
+                /* Notes continue to a line ending end_note ... */
+                while( df_read_data_file( cfs->df ) == OK )
+                {
+                    is =  df_input_string( cfs->df );
+                    if( test_next_string_field( is, END_NOTE_MARKER )) break;
+                }
+            }
         }
     }
 }
@@ -291,28 +291,28 @@ static int get_coordsys( void *pcfs, long id, const char *code, coordsys **cs )
 
 static int get_csdef_notes( void *pcfs, int type, const char *code, void *sptr, int (*puttext)(const char *note, void *sptr ))
 {
-	crdsys_file_source *cfs = (crdsys_file_source *) pcfs;
+    crdsys_file_source *cfs = (crdsys_file_source *) pcfs;
     code_loc *cl;
-	input_string_def *instr;
-	
-	if( type != CS_COORDSYS_NOTE && type != CS_REF_FRAME_NOTE ) return INVALID_DATA;
+    input_string_def *instr;
+
+    if( type != CS_COORDSYS_NOTE && type != CS_REF_FRAME_NOTE ) return INVALID_DATA;
 
     cl = find_code_loc( cfs, type, code );
-	if( ! cl ) return INVALID_DATA;
+    if( ! cl ) return INVALID_DATA;
 
-	df_reset_data_file_loc( cfs->df, &cl->loc );
-/* df_read_data_file( cfs->df ); */
+    df_reset_data_file_loc( cfs->df, &cl->loc );
+    /* df_read_data_file( cfs->df ); */
 
     while( df_read_data_file( cfs->df ) == OK )
-	{
-		const char *text;
-		instr = df_input_string( cfs->df );
-		if( test_next_string_field( instr, END_NOTE_MARKER )) break;
-		text = unread_string( instr );
-		(*puttext)( text, sptr );
-		(*puttext)( "\n", sptr );
-	}
-	return OK;
+    {
+        const char *text;
+        instr = df_input_string( cfs->df );
+        if( test_next_string_field( instr, END_NOTE_MARKER )) break;
+        text = unread_string( instr );
+        (*puttext)( text, sptr );
+        (*puttext)( "\n", sptr );
+    }
+    return OK;
 }
 
 static int delete_crdsys_file_source( void *pcfs )
@@ -345,7 +345,7 @@ static int create_crdsys_file_source( const char *filename )
     csd.getel = get_ellipsoid;
     csd.getrf = get_ref_frame_cs;
     csd.getcs = get_coordsys;
-	csd.getnotes = get_csdef_notes;
+    csd.getnotes = get_csdef_notes;
     csd.getcodes = get_codes;
     csd.delsource = delete_crdsys_file_source;
     register_crdsys_source( &csd );

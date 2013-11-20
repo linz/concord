@@ -354,7 +354,7 @@ static int copy_to_newline( FILE *input, FILE *output, char *prefix )
         if (c==EOF) break;
         if (output)
         {
-			if( c == '\r' ) continue;
+            if( c == '\r' ) continue;
             if( prefix && c != '\n' )
             {
                 fputs( prefix, output );
@@ -427,8 +427,8 @@ static int pause_output( void )
     /*
     int c;
     int domore;
-	
-	if( ! _isatty(_fileno(stdout)) || ! _isatty(_fileno(stdin)) ) return 1;
+
+    if( ! _isatty(_fileno(stdout)) || ! _isatty(_fileno(stdin)) ) return 1;
     printf("Press return to continue: ");
     domore = 1;
     do
@@ -439,7 +439,7 @@ static int pause_output( void )
     while( c != '\n' && c != EOF );
     return domore;
     */
-	return 1;
+    return 1;
 }
 
 static void help( void )
@@ -522,7 +522,7 @@ static void decode_proj_string( char *code, coordsys **proj,
     {
         if ( (*proj=load_coordsys(s)) == NULL )
         {
-			get_notes( CS_COORDSYS_NOTE, s, &printf_writer);
+            get_notes( CS_COORDSYS_NOTE, s, &printf_writer);
             sprintf(errmsg,"Invalid coordinate code %s for %s coordinates",s,iostring);
             error_exit(errmsg,"");
         }
@@ -609,22 +609,22 @@ static void list_circuits_and_exit( int argc, char *argv[] )
         coordsys *cs;
         for( i = 0; i < argc; i++ )
         {
-			int sts;
+            int sts;
             ncs++;
             cs = load_coordsys( argv[i] );
             if( cs )
-			{
-				describe_coordsys( &printf_writer, cs );
-				printf("\n");
-				sts=get_crdsys_notes( cs, &printf_writer );
-                                if( sts == OK ) printf("\n");
-				delete_coordsys( cs );
-			}
-			else
-			{
-				printf("\nCoordinate system %s is not defined\n",argv[i]);
-				sts = get_notes( CS_COORDSYS_NOTE, argv[i], &printf_writer );
-			}
+            {
+                describe_coordsys( &printf_writer, cs );
+                printf("\n");
+                sts=get_crdsys_notes( cs, &printf_writer );
+                if( sts == OK ) printf("\n");
+                delete_coordsys( cs );
+            }
+            else
+            {
+                printf("\nCoordinate system %s is not defined\n",argv[i]);
+                sts = get_notes( CS_COORDSYS_NOTE, argv[i], &printf_writer );
+            }
         }
     }
     if( ncs == 0 )
@@ -1094,7 +1094,7 @@ static void setup_transformation( void )
         else
         {
             printf("Cannot convert coordinates from %s to %s\n",
-                input_cs->code, output_cs->code );
+                   input_cs->code, output_cs->code );
         }
         get_conv_code_notes( CS_COORDSYS_NOTE, input_cs->code, output_cs->code, &printf_writer);
         exit(1);
@@ -1234,7 +1234,7 @@ static void setup_geoid_calculations( void )
 
     /* Set up the conversion */
 
-    geoid_cs = get_geoid_coordsys( geoiddef ); 
+    geoid_cs = get_geoid_coordsys( geoiddef );
 
     if( !geoid_cs )
     {
@@ -1248,7 +1248,7 @@ static void setup_geoid_calculations( void )
     {
         char errmsg[256];
         sprintf(errmsg,"Cannot convert between %.20s and geoid coordinate system %.20s",
-            input_cs->code, geoid_cs->code );
+                input_cs->code, geoid_cs->code );
         get_conv_code_notes( CS_COORDSYS_NOTE, input_cs->code, geoid_cs->code, &printf_writer);
         error_exit(errmsg,"");
     }
@@ -1257,7 +1257,7 @@ static void setup_geoid_calculations( void )
     {
         char errmsg[256];
         sprintf(errmsg,"Cannot convert between %.20s and geoid coordinate system %.20s",
-            output_cs->code, geoid_cs->code );
+                output_cs->code, geoid_cs->code );
         get_conv_code_notes( CS_COORDSYS_NOTE, output_cs->code, geoid_cs->code, &printf_writer);
         error_exit(errmsg,"");
     }
@@ -1313,9 +1313,9 @@ static void open_files( void )
 
 static void head_output( FILE * out )
 {
-	output_string_def os;
-	fprintf(out,"\n%s - coordinate conversion program (version %s dated %s)\n",
-         PROGNAME,VERSION,PROGDATE);
+    output_string_def os;
+    fprintf(out,"\n%s - coordinate conversion program (version %s dated %s)\n",
+            PROGNAME,VERSION,PROGDATE);
     fprintf(out,"\nInput coordinates:  %s", input_cs->name);
     /* if( use_deformation ) fprintf(out," at epoch %.2lf",cnv.epochfrom); */
     fprintf(out,"\n");
@@ -1329,9 +1329,9 @@ static void head_output( FILE * out )
         fprintf(out,"\nDatum conversion epoch %.2lf\n",cnv.epochconv);
     }
 
-	os.sink=out;
-	os.write= (output_string_func) fputs;
-        get_conv_notes( &cnv, &os );
+    os.sink=out;
+    os.write= (output_string_func) fputs;
+    get_conv_notes( &cnv, &os );
     if( transform_heights ) fprintf(out,"\nGeoid heights from %s\n",get_geoid_model( geoiddef ));
 }
 
@@ -1840,8 +1840,8 @@ int main( int argc, char *argv[] )
         const char *gfile = geoid_file;
         const char *title = NULL;
 
-	    if( ! gfile || ! file_exists(gfile) )
-		{
+        if( ! gfile || ! file_exists(gfile) )
+        {
             gfile = create_geoid_filename(geoid_file);
         }
         if( ! gfile || ! file_exists(gfile) )

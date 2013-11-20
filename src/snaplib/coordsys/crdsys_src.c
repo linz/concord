@@ -185,12 +185,12 @@ int get_notes( int type, const char *code, output_string_def *os )
     strncpy(cscode,code,nch);
     cscode[nch] = 0;
 
-    for( csd = sources; csd; csd = csd->next ) 
-		if( csd->getnotes )
+    for( csd = sources; csd; csd = csd->next )
+        if( csd->getnotes )
         {
 
             sts = (*csd->getnotes)( csd->data, type, cscode, os->sink, os->write );
-			if( sts == OK ) break;
+            if( sts == OK ) break;
         }
     return sts;
 }
@@ -198,61 +198,61 @@ int get_notes( int type, const char *code, output_string_def *os )
 
 int get_crdsys_notes( coordsys *cs, output_string_def *os  )
 {
-	int sts;
+    int sts;
 
-	sts = get_notes( CS_COORDSYS_NOTE, cs->code, os );
-	if( cs->rf ) 
-	{
-		if( get_notes( CS_REF_FRAME_NOTE, cs->rf->code, os  ) == OK ) sts=OK;
-	}
-	return sts;
+    sts = get_notes( CS_COORDSYS_NOTE, cs->code, os );
+    if( cs->rf )
+    {
+        if( get_notes( CS_REF_FRAME_NOTE, cs->rf->code, os  ) == OK ) sts=OK;
+    }
+    return sts;
 }
 
 static int gcc_notes( int type, const char *code1, const char *code2, output_string_def *os )
 {
-	char convcode[CRDCNV_CODE_LEN+1];
-	if( ! code1 || ! code2 ) return INVALID_DATA;
-	if( strlen(code1) > CRDSYS_CODE_LEN || strlen(code2) > CRDSYS_CODE_LEN ) return INVALID_DATA;
-	strcpy(convcode,code1);
-	strcat(convcode,":");
-	strcat(convcode,code2);
-	return get_notes(type,convcode,os);
+    char convcode[CRDCNV_CODE_LEN+1];
+    if( ! code1 || ! code2 ) return INVALID_DATA;
+    if( strlen(code1) > CRDSYS_CODE_LEN || strlen(code2) > CRDSYS_CODE_LEN ) return INVALID_DATA;
+    strcpy(convcode,code1);
+    strcat(convcode,":");
+    strcat(convcode,code2);
+    return get_notes(type,convcode,os);
 }
 
 int get_conv_code_notes( int type, const char *code1, const char *code2, output_string_def *os )
 {
-	if( gcc_notes(type,code1,code2,os)==OK || gcc_notes(type,code2,code1,os)==OK ) return OK;
-	return MISSING_DATA;
+    if( gcc_notes(type,code1,code2,os)==OK || gcc_notes(type,code2,code1,os)==OK ) return OK;
+    return MISSING_DATA;
 }
 
 int get_conv_notes( coord_conversion *conv, output_string_def *os )
 {
-	int sts = MISSING_DATA;
-	int icrf;
-	if( get_conv_code_notes( CS_COORDSYS_NOTE,conv->from->code, conv->to->code, os ) == OK ) 
-	{
-		sts = OK;
-	}
-	for( icrf=0; icrf < conv->ncrf; icrf++ )
-	{
-		const char *code1, *code2;
-		coord_conversion_rf *crf = &(conv->crf[icrf]);
-		if( crf->def_only ) continue;
-		if( ! crf->rf ) continue;
-		if( crf->xyz_to_std )
-		{
-			code1=crf->rf->code;
-			code2=crf->rf->refcode;
-		}
-		else
-		{
-			code1=crf->rf->refcode;
-			code2=crf->rf->code;
-		}
-		if( get_conv_code_notes( CS_REF_FRAME_NOTE,code1,code2, os ) == OK ) 
-		{
-			sts = OK;
-		}
-	}
-	return sts;
+    int sts = MISSING_DATA;
+    int icrf;
+    if( get_conv_code_notes( CS_COORDSYS_NOTE,conv->from->code, conv->to->code, os ) == OK )
+    {
+        sts = OK;
+    }
+    for( icrf=0; icrf < conv->ncrf; icrf++ )
+    {
+        const char *code1, *code2;
+        coord_conversion_rf *crf = &(conv->crf[icrf]);
+        if( crf->def_only ) continue;
+        if( ! crf->rf ) continue;
+        if( crf->xyz_to_std )
+        {
+            code1=crf->rf->code;
+            code2=crf->rf->refcode;
+        }
+        else
+        {
+            code1=crf->rf->refcode;
+            code2=crf->rf->code;
+        }
+        if( get_conv_code_notes( CS_REF_FRAME_NOTE,code1,code2, os ) == OK )
+        {
+            sts = OK;
+        }
+    }
+    return sts;
 }
