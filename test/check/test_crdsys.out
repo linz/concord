@@ -12,6 +12,7 @@ concord: Valid coordinate systems are:
   IERSBWE_XYZ Test IERS params IERS params
   NZMG       New Zealand Map Grid
   WELLTM2000 Wellington Circuit 2000
+  WELLTM1949 Wellington Circuit 1949
   ANT_PS     WGS 84 / Antarctic Polar Stereographic
   ST57-60_LCC SCAR IMW ST57-60 Lambert Conformal Conic
   NZTM       New Zealand Transverse Mercator Projection

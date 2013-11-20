@@ -21,9 +21,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 #endif
-#ifndef UNIX
-#define CONFIG_BASE "config"
-#endif
 
 
 #include "util/fileutil.h"
@@ -35,9 +32,18 @@ static char rcsid[]="$Id: fileutil.c,v 1.3 2004/04/22 02:35:24 ccrook Exp $";
 static char *usercfg=NULL;
 static char *syscfg=NULL;
 static char *imgpath=NULL;
+static char *imgdir=NULL;
 static char *projdir=NULL;
 static char *filename=NULL;
 static int filenamelen=0;
+
+typedef struct config_path_def_s { 
+	struct config_path_def_s *next;
+	char *path;
+} config_path_def;
+
+static config_path_def *config_dir_list=0;
+static int config_dirs_set=0;
 
 static char *filenameptr( int reqlen )
 {
@@ -98,11 +104,15 @@ char *build_config_filespec( char *spec, int nspec,
     *spec=0;
     end=spec;
     if( dir ) 
-    { 
-        strcpy(end,dir); 
-        end += pathonly ? path_len(dir, 0) : strlen(dir); 
-        *end=PATH_SEPARATOR; 
-        end++; 
+    {
+		int plen=pathonly ? path_len(dir,0)-1 : strlen(dir);
+		if( plen > 0 )
+		{
+			strcpy(end,dir); 
+			end += pathonly ? path_len(dir, 0) : strlen(dir); 
+			*end=PATH_SEPARATOR; 
+			end++; 
+		}
         *end=0; 
     }
     if( config ){ strcpy(end,config); end += strlen(config); *end=PATH_SEPARATOR; end++; *end=0; }
@@ -153,22 +163,6 @@ const char *image_path()
     return imgpath;
 }
 
-const char *system_config_dir()
-{
-    int len;
-    const char *imgpath=image_path();
-    int plen=path_len(imgpath,0);
-    if( syscfg ) return syscfg;
-    len = plen + strlen(CONFIG_BASE) + 2;
-
-    syscfg = (char *) check_malloc(len);
-    strncpy(syscfg,imgpath,plen);
-    len=strlen(syscfg);
-    syscfg[len]=PATH_SEPARATOR;
-    strcpy(syscfg+len+1,CONFIG_BASE);
-    return syscfg;
-}
-
 const char *user_config_dir()
 {
     char *homedir;
@@ -177,11 +171,11 @@ const char *user_config_dir()
     homedir = getenv("HOME");
     if( ! homedir ) return NULL;
     len = strlen(homedir);
-    usercfg = (char *) check_malloc( len + strlen(CONFIG_BASE) + 3);
+    usercfg = (char *) check_malloc( len + strlen(USER_CONFIG_BASE) + 3);
     strcpy(usercfg,homedir);
     usercfg[len] = PATH_SEPARATOR;
     usercfg[len+1]='.';
-    strcpy(usercfg+len+2,CONFIG_BASE);
+    strcpy(usercfg+len+2,USER_CONFIG_BASE);
     return usercfg;
 }
 
@@ -198,22 +192,6 @@ const char *image_path()
     return imgpath;
 }
 
-const char *system_config_dir()
-{
-    const char *imgpath;
-    int len, plen;
-    if( syscfg ) return syscfg;
-    imgpath = image_path();
-    plen=path_len(imgpath,0);
-    len = plen+strlen(CONFIG_BASE)+2;
-
-    syscfg = (char *) check_malloc( len );
-    strncpy(syscfg,imgpath,plen);
-    syscfg[plen]=PATH_SEPARATOR;
-    strcpy(syscfg+plen+1,CONFIG_BASE);
-    return syscfg;
-}
-
 const char *user_config_dir()
 {
 
@@ -223,28 +201,114 @@ const char *user_config_dir()
     appdata = getenv("APPDATA");
     if( ! appdata ) return NULL;
     len = strlen(appdata);
-    usercfg = (char *) check_malloc( len + strlen(CONFIG_BASE) + 2);
+    usercfg = (char *) check_malloc( len + strlen(USER_CONFIG_BASE) + 2);
     strcpy(usercfg,appdata);
     usercfg[len] = PATH_SEPARATOR;
-    strcpy(usercfg+len+1,CONFIG_BASE);
+    strcpy(usercfg+len+1,USER_CONFIG_BASE);
     return usercfg;
 }
 
 #endif
+
+const char *image_dir()
+{
+	int plen;
+	const char *imgpath;
+	if( imgdir ) return imgdir;
+	imgpath = image_path();
+	plen = path_len(imgpath,0);
+	if( plen ) plen--;
+	imgdir = copy_string_nch(imgpath,plen);
+	return imgdir;
+}
+
+const char *system_config_dir()
+{
+    int len;
+    const char *imgdir;
+    if( syscfg ) return syscfg;
+	imgdir=image_dir();
+    len = strlen(imgdir) + strlen(SYS_CONFIG_BASE) + 2;
+    syscfg = (char *) check_malloc(len);
+    strcpy(syscfg,imgdir);
+    len=strlen(syscfg);
+    syscfg[len]=PATH_SEPARATOR;
+    strcpy(syscfg+len+1,SYS_CONFIG_BASE);
+    return syscfg;
+}
 
 const char *project_dir()
 {
     return projdir;
 }
 
-void set_user_config_from_env( const char *envvar )
+static config_path_def *config_dirs()
 {
-    char *envval;
-    envval=getenv(envvar);
-    if( envval )
-    {
-        set_user_config_dir( envval );
-    }
+	const char *snapenv;
+	const char *start, *end;
+	config_path_def **nextpath;
+	if( config_dirs_set ) return config_dir_list;
+	config_dirs_set = 1;
+	nextpath = &config_dir_list;
+	snapenv =  getenv(SNAPENV);
+	if( snapenv )
+	{
+		start=snapenv;
+		while( *start )
+		{
+			int nch;
+			end=start;
+			while(*end && *end != PATHENV_SEP) end++;
+			nch=end-start;
+			if( nch > 0 )
+			{
+				char *path = copy_string_nch(start,nch);
+				if( file_exists(path) )
+				{
+					config_path_def *psub=(config_path_def *) check_malloc( sizeof(config_path_def) );
+					psub->next = 0;
+					psub->path = path;
+					*nextpath=psub;
+					nextpath = &(psub->next);
+				}
+				else
+				{
+					check_free(path);
+				}
+			}
+			start = end;
+			if( *start ) start++;
+		}
+	}
+	if( file_exists(user_config_dir()))
+	{
+		config_path_def *psub=(config_path_def *) check_malloc( sizeof(config_path_def) );
+		psub->next = 0;
+		psub->path = copy_string(user_config_dir());
+		*nextpath=psub;
+		nextpath = &(psub->next);
+	}
+	if( file_exists(system_config_dir()))
+	{
+		config_path_def *psub=(config_path_def *) check_malloc( sizeof(config_path_def) );
+		psub->next = 0;
+		psub->path = copy_string(system_config_dir());
+		*nextpath=psub;
+		nextpath = &(psub->next);
+	}
+	return config_dir_list;
+}
+
+void reset_config_dirs()
+{
+	config_path_def *cpd;
+	while( config_dir_list )
+	{
+		cpd=config_dir_list;
+		config_dir_list=cpd->next;
+		check_free(cpd);
+	}
+	config_dirs_set=0;
 }
 
 void set_user_config_dir( const char *cfgdir )
@@ -252,6 +316,7 @@ void set_user_config_dir( const char *cfgdir )
     if( usercfg ) check_free(usercfg);
     usercfg = copy_string(cfgdir);
 }
+
 
 void set_project_dir( const char *project_dir )
 {
@@ -264,23 +329,12 @@ const char *find_config_file( const char *config, const char *name, const char *
 {
     const char *spec;
     const char *cfg;
+	config_path_def *cpd;
 
-    cfg = user_config_dir();
-    if( cfg )
-    {
-        spec=build_config_filespec( 0, 0, cfg, 0, config, name, dflt_ext);
-        if( file_exists(spec) ) return spec;
-        if( dflt_ext )
-        {
-            spec=build_config_filespec( 0, 0, cfg, 0, config, name, 0);
-            if( file_exists(spec) ) return spec;
-        }
-    }
-
-    cfg = system_config_dir();
-    if( cfg )
-    {
-        spec=build_config_filespec( 0, 0, cfg, 0, config, name, dflt_ext);
+	for( cpd=config_dirs(); cpd; cpd=cpd->next )
+	{
+		cfg=cpd->path;
+		spec=build_config_filespec( 0, 0, cfg, 0, config, name, dflt_ext);
         if( file_exists(spec) ) return spec;
         if( dflt_ext )
         {

@@ -38,10 +38,11 @@ This includes managing reference frames, ellipsoids, and projections.
 #define CRDSYSENV "COORDSYSDEF"
 
 #define CRDSYS_CODE_LEN 20
+#define CRDCNV_CODE_LEN (CRDSYS_CODE_LEN+CRDSYS_CODE_LEN+1)
 #define CRDSYS_NAME_LEN 128
 
 enum { CSTP_CARTESIAN, CSTP_GEODETIC, CSTP_PROJECTION };
-enum { CS_ELLIPSOID, CS_REF_FRAME, CS_COORDSYS, CS_INVALID };
+enum { CS_ELLIPSOID, CS_REF_FRAME, CS_COORDSYS, CS_REF_FRAME_NOTE, CS_COORDSYS_NOTE, CS_COORDSYS_COUNT, CS_INVALID };
 
 /* Definition of an ellipsoid.  In addition to the ID, code and
 	two parameters, it contains several calculated values which are
@@ -451,5 +452,10 @@ const char *coordsys_list_code( int item );
 const char *coordsys_list_desc( int item );
 coordsys * coordsys_from_list( int item );
 coordsys * load_coordsys( const char *code );
+
+int get_notes( int type, const char *code, output_string_def *os );
+int get_crdsys_notes( coordsys *cs, output_string_def *os );
+int get_conv_code_notes( int type, const char *code1, const char *code2, output_string_def *os );
+int get_conv_notes( coord_conversion *conv, output_string_def *os );
 
 #endif /* COORDSYS_H defined */

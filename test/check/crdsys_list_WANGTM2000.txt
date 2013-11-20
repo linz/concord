@@ -1,4 +1,3 @@
-
 Coordinate system: Wanganui Circuit 2000
 Reference frame: New Zealand Geodetic Datum 2000
 LINZ deformation model
@@ -18,3 +17,4 @@ Projection: Transverse Mercator
   False easting              400000.000
   False northing             800000.000
   Unit to metres conversion  1.000000
+

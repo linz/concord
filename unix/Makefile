@@ -82,8 +82,8 @@ bin/concord: $(OBJECTS)
 
 reference_files:
 	rm -rf bin/linz
-	mkdir -p bin/linz/coordsys
-	cp $(SRC)/coordsys/* bin/linz/coordsys
+	mkdir -p bin/config/coordsys
+	cp $(SRC)/coordsys/* bin/config/coordsys
 	
 test: bin/concord
 	cd ../test && sh test.sh
