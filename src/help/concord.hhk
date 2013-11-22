@@ -46,6 +46,8 @@
 		<param name="Local" value="help/coordsys/crdsys_crdsys_def.html">
 		<param name="Name" value="Coordinate system file format">
 		<param name="Local" value="help/coordsys/crdsys_file_format.html">
+		<param name="Name" value="Coordinate system notes format">
+		<param name="Local" value="help/coordsys/crdsys_file_notes.html">
 		<param name="Name" value="Coordinate systems in SNAP and concord">
 		<param name="Local" value="help/coordsys/index.html">
 		<param name="Name" value="Examples of concord">
@@ -67,6 +69,8 @@
 		<param name="Local" value="help/coordsys/crdsys_crdsys_def.html">
 		<param name="Name" value="Coordinate system file format">
 		<param name="Local" value="help/coordsys/crdsys_file_format.html">
+		<param name="Name" value="Coordinate system notes format">
+		<param name="Local" value="help/coordsys/crdsys_file_notes.html">
 		<param name="Name" value="Coordinate systems in SNAP and concord">
 		<param name="Local" value="help/coordsys/index.html">
 		<param name="Name" value="Ellipsoid definition format">

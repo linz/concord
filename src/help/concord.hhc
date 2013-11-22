@@ -30,8 +30,8 @@
 			<param name="Local" value="help/coordsys/whatiscoordsys.html">
 			</OBJECT>
 		<LI> <OBJECT type="text/sitemap">
-			<param name="Name" value="Coordinate system definition format">
-			<param name="Local" value="help/coordsys/crdsys_crdsys_def.html">
+			<param name="Name" value="Coordinate system file format">
+			<param name="Local" value="help/coordsys/crdsys_file_format.html">
 			</OBJECT>
 		<UL>
 			<LI> <OBJECT type="text/sitemap">
@@ -43,32 +43,38 @@
 				<param name="Local" value="help/coordsys/crdsys_refframe_def.html">
 				</OBJECT>
 			<LI> <OBJECT type="text/sitemap">
-				<param name="Name" value="Equatorial Mercator projection definition format">
-				<param name="Local" value="help/coordsys/crdsys_em.html">
+				<param name="Name" value="Coordinate system definition format">
+				<param name="Local" value="help/coordsys/crdsys_crdsys_def.html">
 				</OBJECT>
+			<UL>
+				<LI> <OBJECT type="text/sitemap">
+					<param name="Name" value="Equatorial Mercator projection definition format">
+					<param name="Local" value="help/coordsys/crdsys_em.html">
+					</OBJECT>
+				<LI> <OBJECT type="text/sitemap">
+					<param name="Name" value="Gnomic projection definition format">
+					<param name="Local" value="help/coordsys/crdsys_gn.html">
+					</OBJECT>
+				<LI> <OBJECT type="text/sitemap">
+					<param name="Name" value="Lambert Conformal Conic projection definition">
+					<param name="Local" value="help/coordsys/crdsys_lcc.html">
+					</OBJECT>
+				<LI> <OBJECT type="text/sitemap">
+					<param name="Name" value="New Zealand Map Grid definition format">
+					<param name="Local" value="help/coordsys/crdsys_nzmg.html">
+					</OBJECT>
+				<LI> <OBJECT type="text/sitemap">
+					<param name="Name" value="Polar Stereographic projection definition format">
+					<param name="Local" value="help/coordsys/crdsys_ps.html">
+					</OBJECT>
+				<LI> <OBJECT type="text/sitemap">
+					<param name="Name" value="Transverse Mercator projection definition format">
+					<param name="Local" value="help/coordsys/crdsys_tm.html">
+					</OBJECT>
+			</UL>
 			<LI> <OBJECT type="text/sitemap">
-				<param name="Name" value="Coordinate system file format">
-				<param name="Local" value="help/coordsys/crdsys_file_format.html">
-				</OBJECT>
-			<LI> <OBJECT type="text/sitemap">
-				<param name="Name" value="Gnomic projection definition format">
-				<param name="Local" value="help/coordsys/crdsys_gn.html">
-				</OBJECT>
-			<LI> <OBJECT type="text/sitemap">
-				<param name="Name" value="Lambert Conformal Conic projection definition">
-				<param name="Local" value="help/coordsys/crdsys_lcc.html">
-				</OBJECT>
-			<LI> <OBJECT type="text/sitemap">
-				<param name="Name" value="New Zealand Map Grid definition format">
-				<param name="Local" value="help/coordsys/crdsys_nzmg.html">
-				</OBJECT>
-			<LI> <OBJECT type="text/sitemap">
-				<param name="Name" value="Polar Stereographic projection definition format">
-				<param name="Local" value="help/coordsys/crdsys_ps.html">
-				</OBJECT>
-			<LI> <OBJECT type="text/sitemap">
-				<param name="Name" value="Transverse Mercator projection definition format">
-				<param name="Local" value="help/coordsys/crdsys_tm.html">
+				<param name="Name" value="Coordinate system notes format">
+				<param name="Local" value="help/coordsys/crdsys_file_notes.html">
 				</OBJECT>
 		</UL>
 		<LI> <OBJECT type="text/sitemap">
@@ -83,6 +89,20 @@
 			<LI> <OBJECT type="text/sitemap">
 				<param name="Name" value="Grid file format">
 				<param name="Local" value="help/coordsys/gridfile_c.html">
+				</OBJECT>
+		</UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="LINZ deformation model">
+			<param name="Local" value="help/coordsys/linzdefmodel.html">
+			</OBJECT>
+		<UL>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="LINZ deformation file format">
+				<param name="Local" value="help/coordsys/linzdeffile.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="Triangulated data file format">
+				<param name="Local" value="help/coordsys/trigfile.html">
 				</OBJECT>
 		</UL>
 	</UL>
