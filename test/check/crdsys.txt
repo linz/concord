@@ -354,11 +354,12 @@ Testing WGS72
 3 errors occurred reading or converting coordinates
 =======================
 Testing WGS84
+There are several WGS84 reference frames. Please select one of WGS84_D, WGS84_G730, WGS84_G873, WGS84_G1150, WGS84_G1674
+concord: Invalid coordinate code WGS84 for output coordinates
 
-7 coordinates converted
-3 errors occurred reading or converting coordinates
+Enter concord -H for a list of command line parameters
 =======================
 Testing WGS84_XYZ
+concord: Invalid coordinate code WGS84_XYZ for output coordinates
 
-7 coordinates converted
-3 errors occurred reading or converting coordinates
+Enter concord -H for a list of command line parameters
