@@ -262,7 +262,6 @@ static DMS *deg_dms( double deg, DMS *dms, int prec, char no_seconds )
     while (prec--) offset /= 10.0;
 
     if (dms->neg = deg<0.0) deg = -deg;
-    deg += offset/3600.0;
     if( no_seconds ) deg += offset/60.0; else deg += offset/3600.0;
     deg -= (dms->degrees = floor(deg));
     if( ! no_seconds )
