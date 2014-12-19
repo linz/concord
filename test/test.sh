@@ -118,6 +118,10 @@ ${concord} -iNZGD2000,NEH,H -oWGS84,NEH -V -N6 in/test1.in out/test21.out > out/
 ${concord} -iNZGD2000,NEH,H -oWELLTM1949,NE -V -P8 -N6 in/test1.in  out/test22.out > out/test22.txt 2>&1
 ${concord} -iNZGD1949,NEH,H -oNZGD2000,NE -V -P8 -N6 in/test1.in  out/test23.out > out/test23.txt 2>&1
 
+echo Testing separator
+
+${concord} -INZGD2000,NE,D -oNZGD2000,NE,H -N8 -S, -P8 in/testsep.in out/test30.out >> out/test30.txt 2>&1
+${concord} -INZGD2000,NE,D -oNZGD2000,NE,H -E -N8 -S, -P8 in/testsep.in out/test31.out >> out/test31.txt 2>&1
 
 echo Test each coordinate system with official COORDSYSDEF file
 

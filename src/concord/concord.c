@@ -3,7 +3,7 @@
 /* Version 2.0: Uses SNAP coordinate conversion routines....     */
 
 #define PROGNAME "concord"
-#define VERSION  "3.4"
+#define VERSION  "3.5"
 #define PROGDATE __DATE__
 
 /* Revision history:
