@@ -139,12 +139,12 @@ void print_ltmat( FILE *out, ltmat N, int nrow, char *format, int indent )
 
     for (k=0; k<nrow; k+=cols)
     {
-        fprintf(out,"\n%.*s      ",indent,"");
+        fprintf(out,"\n%.*s       ",indent,"");
         for( j=k; j<nrow && j<k+cols; j++) fprintf(out,"%*d ",wid,j+1);
         fprintf(out,"\n");
         for (i=k; i<nrow; i++ )
         {
-            fprintf(out,"%.*s%6d",indent,"",i+1);
+            fprintf(out,"%.*s%6d ",indent,"",i+1);
             for( j=k; j<=i && j<k+cols; j++)
             {
                 fprintf(out,format,Lij(N,i,j));

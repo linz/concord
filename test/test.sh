@@ -197,6 +197,8 @@ echo NZGD2000 to ITRF2008 >> out/itrf.txt
 ${concord} -INZGD2000,NE,D -oITRF2008,NEH,D -Y2000 -N8 -P8 in/test15.in out/test_ITRF2008d.out >> out/itrf.txt 2>&1
 ${concord} -INZGD2000,NE,D -oITRF2008,NEH,D -Y2010 -N8 -P8 in/test15.in out/test_ITRF2008e.out >> out/itrf.txt 2>&1
 
+echo NZGD2000 deformation model tests > out/testcsys2.out
+perl run_itrf_trans.pl ${concord} in/testcsys2.in >> out/testcsys2.out
 
 echo "======================================================================"
 echo "Checking test output"
