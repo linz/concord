@@ -31,8 +31,6 @@
 #include "util/geodetic.h"
 #include "util/pi.h"
 
-static char rcsid[]="$Id: geoid.c,v 1.5 2004/04/22 02:34:33 ccrook Exp $";
-
 
 
 static const char *get_geoid_filename( const char *geoidname )
@@ -146,7 +144,7 @@ coordsys *get_geoid_coordsys(  geoid_def *gd )
     return gd->cs;
 }
 
-void print_geoid_header( geoid_def *gd, FILE *out, int width, char *prefix )
+void print_geoid_header( geoid_def *gd, FILE *out, int width, const char *prefix )
 {
     int i, nblank;
     if( !gd->grd ) return;

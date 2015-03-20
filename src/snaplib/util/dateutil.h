@@ -16,6 +16,7 @@
 #endif
 /* Header file for dateutil.c - SNAP date functions */
 
+#define DAYS_PER_YEAR 365.25
 
 /* Snap uses dates as double day number */
 
@@ -26,6 +27,7 @@ double snap_datetime_parse( const char *definition, const char *format );
 
 /* Conversion to other date formats */
 double date_as_year( double snapdate );
+double year_as_snapdate( double years );
 void date_as_ymd( double snapdate, int *year, int *month, int *day );
 void date_as_ymdhms( double snapdate, int *year, int *month, int *day, int *hour, int *min, int *sec );
 

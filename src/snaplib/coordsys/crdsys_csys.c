@@ -17,10 +17,8 @@
 #include "util/errdef.h"
 #include "util/pi.h"
 
-static char rcsid[]="$Id: crdsysc0.c,v 1.1 1995/12/22 16:25:13 CHRIS Exp $";
-
-static char *metre_units = "m";
-static char *radian_units = "rad";
+static const char *metre_units = "m";
+static const char *radian_units = "rad";
 
 coordsys *create_coordsys( const char *code, const char *name, int type,
                            ref_frame *rf, projection *prj )
@@ -97,8 +95,9 @@ void define_deformation_model_epoch( coordsys *cs, double epoch )
     cs->rf->defepoch = epoch;
 }
 
-void define_coordsys_units( coordsys *cs, char *hunits, double hmult,
-                            char *vunits, double vmult )
+void define_coordsys_units( coordsys *cs, 
+                            const char *hunits, double hmult,
+                            const char *vunits, double vmult )
 {
     if( hunits != metre_units && hunits != radian_units )
     {
@@ -109,8 +108,8 @@ void define_coordsys_units( coordsys *cs, char *hunits, double hmult,
         vunits = copy_string( vunits );
     }
 
-    if( cs->hunits != metre_units && cs->hunits != radian_units ) check_free( cs->hunits );
-    if( cs->vunits != metre_units ) check_free( cs->vunits );
+    if( cs->hunits != metre_units && cs->hunits != radian_units ) check_free( (void *) (cs->hunits) );
+    if( cs->vunits != metre_units ) check_free( (void *) (cs->vunits) );
 
     cs->hunits = hunits;
     cs->vunits = vunits;
@@ -186,8 +185,8 @@ void delete_coordsys( coordsys *cs )
     check_free( cs->source );
     delete_ref_frame( cs->rf );
     delete_projection( cs->prj );
-    if( cs->hunits != metre_units && cs->hunits != radian_units ) check_free( cs->hunits );
-    if( cs->vunits != metre_units ) check_free( cs->vunits );
+    if( cs->hunits != metre_units && cs->hunits != radian_units ) check_free( (void *)(cs->hunits) );
+    if( cs->vunits != metre_units ) check_free( (void *)(cs->vunits) );
     check_free( cs );
 }
 

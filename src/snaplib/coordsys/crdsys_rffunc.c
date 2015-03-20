@@ -28,15 +28,11 @@
 #include "util/fileutil.h"
 #include "util/pi.h"
 
-static char rcsid[]="$Id: crdsysr4.c,v 1.3 2004/04/22 02:34:21 ccrook Exp $";
-
 int parse_ref_frame_func_def ( input_string_def *is, ref_frame_func **rff )
 {
     int sts;
-    long loc;
 
     *rff = 0;
-    loc = get_string_loc( is );
     if( ! test_next_string_field( is, "GRID" ) )
     {
         sts = OK;

@@ -31,7 +31,7 @@ typedef struct
 /* Called when the configuration file includes a deformation command - the
    command is passed to define_deformation as the string model */
 
-#pragma warning (disable : 4100)
+// #pragma warning (disable : 4100)
 
 static void rf_linzdef_delete( void *data )
 {
@@ -163,11 +163,11 @@ int rfdef_parse_linzdef( ref_deformation *def, input_string_def *is )
         return sts;
     }
 
+    def->data = rf_linzdef_create( ldeffile );
     def->delete_func = rf_linzdef_delete;
     def->copy_func = rf_linzdef_copy;
     def->identical = rf_linzdef_identical;
     def->describe_func = rf_linzdef_describe;
-    def->data = rf_linzdef_create( ldeffile );
     def->calc_denu = rf_linzdef_calc;
     def->apply_llh = 0;
     return sts;

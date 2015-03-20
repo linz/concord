@@ -33,6 +33,13 @@
 
 #define GEOID_GRID_EXTENSION ".grd"
 
+/* Default epoch for coordinate conversions between geoid coordinate system and
+   other coordinate systems.  Use this as don't want to be stopped from converting
+   when there is a dynamic relationship (14 param BW or deformation), as this
+   conversion doesn't need to be that accurate... */
+
+#define DEFAULT_GEOID_CRDSYS_EPOCH 2000.0
+
 typedef struct
 {
     grid_def *grd;
@@ -45,7 +52,7 @@ void delete_geoid_filename( const char *filename );
 
 geoid_def *create_geoid_grid( const char *filename );
 void delete_geoid_grid( geoid_def *gd );
-void print_geoid_header( geoid_def *gd, FILE *out, int width, char *prefix );
+void print_geoid_header( geoid_def *gd, FILE *out, int width, const char *prefix );
 void print_geoid_data( geoid_def *gd, FILE *out, char showGrid );
 coordsys *get_geoid_coordsys( geoid_def *gd );
 const char *get_geoid_model( geoid_def *gd );

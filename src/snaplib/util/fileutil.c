@@ -27,8 +27,6 @@
 #include "util/chkalloc.h"
 #include "util/dstring.h"
 
-static char rcsid[]="$Id: fileutil.c,v 1.3 2004/04/22 02:35:24 ccrook Exp $";
-
 static char *usercfg=NULL;
 static char *syscfg=NULL;
 static char *imgpath=NULL;
@@ -90,13 +88,20 @@ char *build_config_filespec( char *spec, int nspec,
                              const char *name, const char *dflt_ext )
 {
     int nch = 0;
+    int dirlen = 0;
     char *end;
-    if( dir ) nch += strlen(dir) + 1;
+    if( dir ) 
+    {
+        dirlen=pathonly ? path_len(dir,0) : strlen(dir);
+        if( dirlen > 0 && (dir[dirlen-1]==PATH_SEPARATOR || dir[dirlen-1]==PATH_SEPARATOR2) ) dirlen--;
+        if( dirlen > 0 ) nch += dirlen + 1;
+    }
     if( config ) nch += strlen(config) + 1;
     if( name ) nch += strlen(name);
     if( dflt_ext ) nch += strlen(dflt_ext);
+    nch++;
 
-    if( spec && nch >= nspec ) { spec[0]=0; return spec; }
+    if( spec && nch > nspec ) { spec[0]=0; return spec; }
     if( ! spec )
     {
         spec=filenameptr(nch);
@@ -104,16 +109,12 @@ char *build_config_filespec( char *spec, int nspec,
 
     *spec=0;
     end=spec;
-    if( dir )
+    if( dirlen > 0 )
     {
-        int plen=pathonly ? path_len(dir,0)-1 : strlen(dir);
-        if( plen > 0 )
-        {
-            strcpy(end,dir);
-            end += pathonly ? path_len(dir, 0) : strlen(dir);
-            *end=PATH_SEPARATOR;
-            end++;
-        }
+        strncpy(end,dir,dirlen);
+        end += dirlen;
+        *end=PATH_SEPARATOR;
+        end++;
         *end=0;
     }
     if( config ) { strcpy(end,config); end += strlen(config); *end=PATH_SEPARATOR; end++; *end=0; }
@@ -158,7 +159,7 @@ const char *image_path()
     if ( len != -1 )
     {
         proc[len] = '\0';
-        imgpath = check_malloc(strlen(proc)+1 );
+        imgpath = (char *) check_malloc(strlen(proc)+1 );
         strcpy( imgpath, proc );
     }
     return imgpath;

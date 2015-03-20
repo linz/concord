@@ -19,8 +19,6 @@
 #include "util/errdef.h"
 #include "util/pi.h"
 
-static char rcsid[]="$Id: crdsysc2.c,v 1.2 2004/04/22 02:34:21 ccrook Exp $";
-
 /* Conversion of coordinates from one coordinate system to another     */
 /* Converts coordinates, deflections, and undulations.  Input coords   */
 /* are either projection northing, easting, or lat and long in radians */
@@ -125,7 +123,7 @@ int define_coord_conversion_epoch( coord_conversion *conv,
             conv->valid=0;
             sprintf(conv->errmsg,
                     "Conversion between coordinate systems %.20s and %.20s is too complex (> %d steps)",
-                    from->code, to->code,nfrom+nto,CONVMAXRF );
+                    from->code, to->code, CONVMAXRF );
         }
         else
         {
@@ -295,7 +293,13 @@ int convert_coords( coord_conversion *conv,
                     {
                         if( geoid ) { int ia; for( ia=0; ia<3; ia++ ) gllh[i]-=xyz[i]; }
                         sts=apply_ref_deformation_llh( rf, xyz, rf->defepoch, tgtepoch );
-                        if( sts != OK ) break;
+                        if( sts != OK ) 
+                        {
+                            sprintf(conv->errmsg,
+                                    "Cannot apply %s deformation model",
+                                    rf->code);
+                            break;
+                        }
                         if( geoid ) { int ia; for( ia=0; ia<3; ia++ ) gllh[i]+=xyz[i]; }
                     }
                 }
@@ -304,7 +308,13 @@ int convert_coords( coord_conversion *conv,
                 {
                     if( ! isgeoc ) { llh_to_xyz( rf->el, xyz, xyz, 0, 0 ); isgeoc=1; }
                     sts = xyz_to_std( rf, xyz, conv->epochconv );
-                    if( sts != OK ) break;
+                    if( sts != OK ) 
+                    {
+                        sprintf(conv->errmsg,
+                                "Cannot convert from %s to %s",
+                                rf->code, rf->refcode ? rf->refcode : "base" );
+                        break;
+                    }
                 }
             }
             else
@@ -313,7 +323,16 @@ int convert_coords( coord_conversion *conv,
                 {
                     if( ! isgeoc ) { llh_to_xyz( rf->el, xyz, xyz, 0, 0 ); isgeoc=1; }
                     sts = std_to_xyz( rf, xyz, conv->epochconv );
-                    if( sts != OK ) break;
+                    if( sts != OK ) 
+                    {
+                        if( sts != OK ) 
+                        {
+                            sprintf(conv->errmsg,
+                                    "Cannot convert from %s to %s",
+                                    rf->refcode ? rf->refcode : "base", rf->code );
+                            break;
+                        }
+                    }
                 }
                 /*  Apply deformation model */
                 if( rf->def )
@@ -324,7 +343,13 @@ int convert_coords( coord_conversion *conv,
                     {
                         if( geoid ) { int ia; for( ia=0; ia<3; ia++ ) gllh[i]-=xyz[i]; }
                         sts=apply_ref_deformation_llh( rf, xyz, srcepoch, rf->defepoch );
-                        if( sts != OK ) break;
+                        if( sts != OK ) 
+                        {
+                            sprintf(conv->errmsg,
+                                    "Cannot apply %s deformation model",
+                                    rf->code);
+                            break;
+                        }
                         if( geoid ) { int ia; for( ia=0; ia<3; ia++ ) gllh[i]+=xyz[i]; }
                     }
                 }
@@ -335,12 +360,6 @@ int convert_coords( coord_conversion *conv,
                 llh_to_xyz( rf->el, xyz, xyz, 0, 0 );
                 isgeoc=1;
             }
-        }
-        if( sts != OK )
-        {
-            sprintf(conv->errmsg,
-                    "Cannot convert coordinates between reference frames %.20s and %.20s",
-                    from->rf->code, to->rf->code);
         }
     }
 
