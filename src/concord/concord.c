@@ -413,7 +413,7 @@ static void concord_init( void )
 
     input_prec = -1;
     input_vprec = -1;
-    output_prec = 3;
+    output_prec = -1;
     output_vprec = -1;
 }
 
@@ -1057,6 +1057,20 @@ static void tidy_up_parameters( void )
        echoing.  Attempt to get similar accuracy to output
        coordinates */
 
+    if( output_prec < 0 )
+    {
+        output_prec=3;
+        if( is_geodetic(output_cs))
+        {
+            switch(output_dms)
+            {
+                case AF_DEG:  output_prec += 5; break;
+                case AF_DM:   output_prec += 3; break;
+                case AF_DMS:  output_prec += 1; break;
+            }
+        }
+    }
+
     input_prec = output_prec;
     if (is_geodetic(output_cs))
     {
@@ -1281,7 +1295,7 @@ static void setup_geoid_calculations( void )
         error_exit(errmess,"");
     }
 
-    if( input_ortho && define_coord_conversion_epoch( &ingcnv, input_cs, geoid_cs, DEFAULT_GEOID_CRDSYS_EPOCH ) != OK )
+    if( input_ortho && define_coord_conversion_epoch( &ingcnv, input_cs, geoid_cs, DEFAULT_CRDSYS_EPOCH ) != OK )
     {
         char errmsg[256];
         sprintf(errmsg,"Cannot convert between %.20s and geoid coordinate system %.20s",
@@ -1290,7 +1304,7 @@ static void setup_geoid_calculations( void )
         error_exit(errmsg,"");
     }
 
-    if( output_ortho && define_coord_conversion_epoch( &outgcnv, output_cs, geoid_cs, DEFAULT_GEOID_CRDSYS_EPOCH ) != OK )
+    if( output_ortho && define_coord_conversion_epoch( &outgcnv, output_cs, geoid_cs, DEFAULT_CRDSYS_EPOCH ) != OK )
     {
         char errmsg[256];
         sprintf(errmsg,"Cannot convert between %.20s and geoid coordinate system %.20s",

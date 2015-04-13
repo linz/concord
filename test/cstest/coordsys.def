@@ -17,7 +17,7 @@ WGS84 "World Geodetic System 1984 Ellipsoid (WGS84)" 6378137 298.257223563
 [reference_frames]
 
 NZGD1949 "New Zealand Geodetic Datum 1949 (NZGD49)" ELLIPSOID INTERNATIONAL &
-   NZGD2000 59.47 -5.04 187.44 -0.47 0.1 -1.024 -4.5993 GRID &
+   WGS84 59.47 -5.04 187.44 -0.47 0.1 -1.024 -4.5993 GRID &
    SNAP2D testrfgrid.grd "LINZ NZGD49-NZGD2000 conversion grid"
 NZGD2000 "New Zealand Geodetic Datum 2000" ELLIPSOID GRS80 WGS84 0 0 0 0 0 0 0
 
@@ -27,7 +27,7 @@ TESTBW14 "Test 14 parameter BW reference frame" ELLIPSOID GRS80 &
     WGS84 100 -125 0 0 0 0 0  &
     RATES 2000 -5 3 -8 0 0 0 0 &
 
-WGS84 "World Geodetic System 1984 (WGS84)" ELLIPSOID WGS84 WGS84 0 0 0 0 0 0 0
+WGS84_D "World Geodetic System 1984 (WGS84)" ELLIPSOID WGS84 WGS84 0 0 0 0 0 0 0
 GRS80 "Geodetic Referency System 1980" ELLIPSOID GRS80 WGS84 0 0 0 0 0 0 0
 
 IERSBW "Australian Geodetic Datum 1984" ELLIPSOID WGS84 WGS84 -117.763 -51.510 139.061 -0.292 -0.443 -0.277 -0.191
@@ -117,7 +117,7 @@ BAD4 "Cyclic ref frame dependency 2" ELLIPSOID INTERNATIONAL &
 
 ! Global systems
 
-WGS84 "World Geodetic System 1984" REF_FRAME WGS84 GEODETIC
+WGS84_D "World Geodetic System 1984" REF_FRAME WGS84_D GEODETIC
 
 ! NZGD2000 geodetic systems
 
@@ -140,14 +140,10 @@ WELLTM2000 "Wellington Circuit 2000" REF_FRAME NZGD2000 &
           PROJECTION TM 174.7763888889 -41.3011111111 1.0 400000 800000 1.0 &
           RANGE 100000 400000 800000 1100000
 
-WELLTM1949 "Wellington Circuit 1949" REF_FRAME NZGD1949 &
-          PROJECTION TM 174.77662311 -41.30131964 1.00000 300000.0 700000.0 0.999998261 &
-          RANGE 0 300000 700000 1000000
-
-ANT_PS "WGS 84 / Antarctic Polar Stereographic" REF_FRAME WGS84 &
+ANT_PS "WGS 84 / Antarctic Polar Stereographic" REF_FRAME WGS84_D &
           PROJECTION PS "South" 0 0.97276901289 0 0
  
-ST57-60_LCC "SCAR IMW ST57-60 Lambert Conformal Conic" REF_FRAME WGS84 &
+ST57-60_LCC "SCAR IMW ST57-60 Lambert Conformal Conic" REF_FRAME WGS84_D &
           PROJECTION LCC -76.66667 -79.33333 -89.999999 168 0.0 0.0
 
 NZTM "New Zealand Transverse Mercator Projection" REF_FRAME NZGD2000 &
@@ -186,7 +182,6 @@ NZVD09 "New Zealand Geoid 2009" NZGD2000 GEOID NZGtest09
 BLUFHT1955 "Bluff 1955" NZVD09 0.36
 STISHT1977 "Stewart Island 1977" NZVD09 0.39
 
-
 [coordinate_system_notes]
 
 BAD1 BAD4 BAD5
@@ -199,14 +194,9 @@ BAD2
 This is bad coordinate system 2
 end_note
 
-WGS84
-This is a note for WGS84 pointing out how problematic it is!
-Just because it has multiple realisations.
-end_note
-
-WGS84:NZGD2000
-Conversion from WGS84 to NZGD2000 is risky as WGS84 is ambiguous,
-don't expect this to be very accurate!
+WGS84 
+There are several WGS84 reference frames. Please select one of &
+WGS84_D, WGS84_G730, WGS84_G873, WGS84_G1150, WGS84_G1674, WGS84_G1762
 end_note
 
 [reference_frame_notes]
@@ -226,3 +216,4 @@ end_note
 NZGD1949:NZGD2000
 NZGD1949-NZGD2000 is even stranger than the other way around!
 end_note
+

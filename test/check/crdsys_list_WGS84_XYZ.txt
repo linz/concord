@@ -1,2 +1,0 @@
-
-Coordinate system WGS84_XYZ is not defined
