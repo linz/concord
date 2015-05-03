@@ -183,6 +183,8 @@ perl fix_output.pl out/*.*
 perl -n -i -e 'print if ! /Electric/' out/*.txt out/*.out
 rm -f out/*.bak
 
-diff -r -b -B -q check out
+if diff -r -b -B -q check out; then
+    echo "All tests passed!"
+fi
 
 

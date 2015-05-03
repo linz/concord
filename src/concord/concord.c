@@ -683,10 +683,9 @@ static void parse_command_line( int argc, char **argv )
         char argchar;
 
         if( arg[0] != '-' ) break;
-        if( ! arg[1] )
-        {
-            error_exit("Invalid switch -","");
-        }
+        if( ! arg[1] ) break;
+        /* If -- then signals end of options */
+        if( arg[1] == '-' && ! arg[2] ) { argc--; argv++; break; }
         argchar=toupper(arg[1]);
         prm=strchr(switch_args,argchar);
         if( prm )
