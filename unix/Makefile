@@ -29,6 +29,9 @@ FILES=\
     ../src/snaplib/coordsys/crdsys_ell.c \
     ../src/snaplib/coordsys/crdsys_ell_func.c \
     ../src/snaplib/coordsys/crdsys_ell_parse.c \
+    ../src/snaplib/coordsys/crdsys_hrs.c \
+    ../src/snaplib/coordsys/crdsys_hrs_func.c \
+    ../src/snaplib/coordsys/crdsys_hrs_parse.c \
     ../src/snaplib/coordsys/crdsys_prj.c \
     ../src/snaplib/coordsys/crdsys_prj_func.c \
     ../src/snaplib/coordsys/crdsys_prj_install.c \
@@ -71,7 +74,8 @@ FILES=\
 
 OBJECTS = $(FILES:.c=.o)
 
-CFLAGS = -g -I$(SRC)/snaplib -I$(SRC)/snaplib/dbl4
+CC = g++
+CFLAGS = -g -std=c++0x -fpermissive -I$(SRC)/snaplib -I$(SRC)/snaplib/dbl4
 
 all: bin/concord reference_files
 

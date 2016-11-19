@@ -14,6 +14,7 @@ echo "Running ${concord}"
 
 ${concord} -Z > out/test_version.out
 ${concord} -L > out/test_crdsys.out
+${concord} -V > out/test_vdatum.out
 
 # Example descriptive outputs 
 
@@ -57,6 +58,35 @@ ${concord} -iNZGD2000,NEH,H -oNZGD2000,NEO,H -gcstest/geoid -N6 in/test1.in out/
 echo "Geoid calculation - invalid geoid"
 ${concord} -iNZGD2000,NEH,H -oNZGD2000,NEO,H -gNoSuchGeoid -N6 in/test1.in out/test8b.out > out/test8b.txt 2>&1
 
+echo "Height reference surface"
+${concord} -iNZGD2000,NEH,H -oNZGD2000/NZVD09,NEO,H -N6 in/test1.in out/test8c.out > out/test8c.txt 2>&1
+
+echo "Height reference surface - ok with O or H"
+${concord} -iNZGD2000,NEH,H -oNZGD2000/NZVD09,NEH,H -N6 in/test1.in out/test8d.out > out/test8d.txt 2>&1
+
+echo "Height reference surface - reverse transformation"
+${concord} -iNZGD2000/NZVD09,NEH,H -oNZGD2000,NEH,H -N6 in/test1.in out/test8e.out > out/test8e.txt 2>&1
+
+echo "Height reference surface with offset"
+${concord} -iNZGD2000,NEH,H -oNZGD2000/OFFSET1,NEH,H -N6 in/test1.in out/test8f.out > out/test8f.txt 2>&1
+
+echo "Height reference surface with offset 2"
+${concord} -iNZGD2000,NEH,H -oNZGD2000/OFFSET2,NEH,H -N6 in/test1.in out/test8g.out > out/test8g.txt 2>&1
+
+echo "Height reference surface with grid offset" 
+${concord} -iNZGD2000,NEH,H -oNZGD2000/GRIDOFFSET,NEH,H -N6 in/test1.in out/test8h.out > out/test8h.txt 2>&1
+
+echo "Conversion between height systems 1" 
+${concord} -iNZGD2000/NZVD09,NEH,H -oNZGD2000/OFFSET1,NEH,H -N6 in/test1.in out/test8i.out > out/test8i.txt 2>&1
+
+echo "Conversion between height systems 2" 
+${concord} -iNZGD2000/OFFSET1,NEH,H -oNZGD2000/NZVD09,NEH,H -N6 in/test1.in out/test8j.out > out/test8j.txt 2>&1
+
+echo "Conversion between height systems 3" 
+${concord} -iNZGD2000/OFFSET1,NEH,H -oNZGD2000/OFFSET2,NEH,H -N6 in/test1.in out/test8k.out > out/test8k.txt 2>&1
+
+echo "Conversion between height systems 4" 
+${concord} -iNZGD2000/OFFSET1,NEH,H -oNZGD2000/OFFSET1,NEH,H -N6 in/test1.in out/test8l.out > out/test8l.txt 2>&1
 
 echo "Different output options"
 
@@ -112,10 +142,10 @@ echo "IERS version of ref frame transformation" >> out/test17.txt
 ${concord} -INZGD2000,NEH,H -oIERSBWE_XYZ -P4 -N6 in/test1.in out/test17b >> out/test17.txt 2>&1
 
 echo "Testing notes..."
-${concord} -iWGS84,NEH,H -oNZGD2000,NEH -V -N6 in/test1.in out/test20.out > out/test20.txt  2>&1
-${concord} -iNZGD2000,NEH,H -oWGS84,NEH -V -N6 in/test1.in out/test21.out > out/test21.txt  2>&1
-${concord} -iNZGD2000,NEH,H -oNZMG,NE -V -P8 -N6 in/test1.in  out/test22.out > out/test22.txt 2>&1
-${concord} -iNZGD1949,NEH,H -oNZGD2000,NE -V -P8 -N6 in/test1.in  out/test23.out > out/test23.txt 2>&1
+${concord} -iWGS84,NEH,H -oNZGD2000,NEH -F -N6 in/test1.in out/test20.out > out/test20.txt  2>&1
+${concord} -iNZGD2000,NEH,H -oWGS84,NEH -F -N6 in/test1.in out/test21.out > out/test21.txt  2>&1
+${concord} -iNZGD2000,NEH,H -oNZMG,NE -F -P8 -N6 in/test1.in  out/test22.out > out/test22.txt 2>&1
+${concord} -iNZGD1949,NEH,H -oNZGD2000,NE -F -P8 -N6 in/test1.in  out/test23.out > out/test23.txt 2>&1
 
 echo Testing separator"
 "
@@ -139,6 +169,15 @@ for c in `cat crdsyslist2.txt`; do
    echo "Testing ${c}" >> out/crdsys.txt
    ${concord} -L ${c} > out/crdsys_list_${c}.txt 2>&1
    ${concord} -IITRF96,NEH,H -o${c} -Y2000.5 -N6 -P6 in/test1.in out/test_${c}.out >> out/crdsys.txt 2>&1
+done
+
+
+echo "Testing height reference surfaces"
+for c in `cat hgtreflist.txt`; do
+   echo "=======================" >> out/hgtref.txt
+   echo "Testing ${c}" >> out/hgtref.txt
+   ${concord} -L NZGD2000/${c} > out/hgtref_list_${c}.txt 2>&1
+   ${concord} -INZGD2000/${c},ENH,D -oNZGD2000,ENH,D -P4:3 in/nzpoints.in out/testhrs_${c}.out >> out/hgtref.txt 2>&1
 done
 
 echo "Testing ITRF systems"

@@ -89,6 +89,8 @@
 		<param name="Local" value="help/coordsys/crdsys_refframe_def.html">
 		<param name="Name" value="Transverse Mercator projection definition format">
 		<param name="Local" value="help/coordsys/crdsys_tm.html">
+		<param name="Name" value="Vertical datum definition format">
+		<param name="Local" value="help/coordsys/crdsys_hgtref_def.html">
 		</OBJECT>
 	<LI> <OBJECT type="text/sitemap">
 		<param name="Name" value="distortion grid">
@@ -176,6 +178,11 @@
 		<param name="Name" value="transverse mercator projection">
 		<param name="Name" value="Transverse Mercator projection definition format">
 		<param name="Local" value="help/coordsys/crdsys_tm.html">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="vertical datum">
+		<param name="Name" value="Vertical datum definition format">
+		<param name="Local" value="help/coordsys/crdsys_hgtref_def.html">
 		</OBJECT>
 </UL>
 </BODY></HTML>

@@ -41,6 +41,8 @@ that the file had not been modified in the mean time - tricky .
 #define COORDSYS_TAG  "[coordinate_systems]"
 #define REFFRAME_NOTE_TAG  "[reference_frame_notes]"
 #define COORDSYS_NOTE_TAG  "[coordinate_system_notes]"
+#define VDATUM_TAG  "[vertical_datums]"
+#define VDATUM_TAG2  "[vdatumerence_surfaces]"
 
 #define END_NOTE_MARKER "end_note"
 
@@ -130,6 +132,8 @@ static void scan_coordsys_defs( crdsys_file_source *cfs )
             else if( _stricmp(code,COORDSYS_TAG ) == 0 ) type = CS_COORDSYS;
             else if( _stricmp(code,COORDSYS_NOTE_TAG ) == 0 ) type = CS_COORDSYS_NOTE;
             else if( _stricmp(code,REFFRAME_NOTE_TAG ) == 0 ) type = CS_REF_FRAME_NOTE;
+            else if( _stricmp(code,VDATUM_TAG ) == 0 ) type = CS_VDATUM;
+            else if( _stricmp(code,VDATUM_TAG2 ) == 0 ) type = CS_VDATUM;
             else type = CS_INVALID;
         }
         else if( type != CS_INVALID )
@@ -168,9 +172,9 @@ static int get_codes( void *pcfs,
 
     if( !cfs ) return OK;
 
-    id = 0;
     for( type=0; type < CS_COORDSYS_COUNT; type++ )
     {
+        id = 0;
         for( cl=cfs->codes[type]; cl; cl=cl->next )
         {
             df_reset_data_file_loc( cfs->df, &cl->loc );
@@ -266,7 +270,6 @@ static int get_ref_frame_cs( void *pcfs, long id, const char *code, ref_frame **
     return get_ref_frame( pcfs, id, code, rf, 1 );
 }
 
-
 static int get_coordsys( void *pcfs, long id, const char *code, coordsys **cs )
 {
     crdsys_file_source *cfs = (crdsys_file_source *) pcfs;
@@ -285,6 +288,37 @@ static int get_coordsys( void *pcfs, long id, const char *code, coordsys **cs )
         (*cs)->source = source;
     }
     return *cs ? OK : INVALID_DATA;
+}
+
+static int get_vdatum( void *pcfs, long id, const char *code, vdatum **hrs );
+
+static vdatum *vdatum_from_code( const char *code, int loadref )
+{
+    vdatum *hrf;
+    int sts;
+    sts = get_vdatum( input_cfs, CS_ID_UNAVAILABLE, code, &hrf );
+    if( sts != OK ) hrf = NULL;
+    return hrf;
+}
+
+static int get_vdatum( void *pcfs, long id, const char *code, vdatum **hrs )
+{
+    crdsys_file_source *cfs = (crdsys_file_source *) pcfs;
+    input_string_def *instr;
+    *hrs = NULL;
+    instr = cfs_code_def( cfs, id, CS_VDATUM, code );
+    if( !instr ) return MISSING_DATA;
+    input_cfs = cfs;
+    *hrs = parse_vdatum_def( instr, ref_frame_from_code, vdatum_from_code );
+    if( *hrs )
+    {
+        char *fn = df_file_name( cfs->df );
+        char *source = (char *) check_malloc(strlen(fn)+6);
+        strcpy(source,"file:");
+        strcat(source,fn);
+        (*hrs)->source = source;
+    }
+    return *hrs ? OK : INVALID_DATA;
 }
 
 static int get_csdef_notes( void *pcfs, int type, const char *code, void *sptr, int (*puttext)(const char *note, void *sptr ))
@@ -343,6 +377,7 @@ static int create_crdsys_file_source( const char *filename )
     csd.getel = get_ellipsoid;
     csd.getrf = get_ref_frame_cs;
     csd.getcs = get_coordsys;
+    csd.gethrs = get_vdatum;
     csd.getnotes = get_csdef_notes;
     csd.getcodes = get_codes;
     csd.delsource = delete_crdsys_file_source;

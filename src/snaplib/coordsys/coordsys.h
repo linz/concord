@@ -42,7 +42,7 @@ This includes managing reference frames, ellipsoids, and projections.
 #define CRDSYS_NAME_LEN 128
 
 enum { CSTP_CARTESIAN, CSTP_GEODETIC, CSTP_PROJECTION };
-enum { CS_ELLIPSOID, CS_REF_FRAME, CS_COORDSYS, CS_REF_FRAME_NOTE, CS_COORDSYS_NOTE, CS_COORDSYS_COUNT, CS_INVALID };
+enum { CS_ELLIPSOID, CS_REF_FRAME, CS_COORDSYS, CS_REF_FRAME_NOTE, CS_COORDSYS_NOTE, CS_VDATUM, CS_COORDSYS_COUNT, CS_INVALID };
 
 /* Default epoch for low accuracy coordinate conversions between coordinate systems.
    Use this to allow conversions where an epoch is required but is not available.
@@ -140,6 +140,22 @@ typedef struct
     void *data;
 } projection;
 
+/* Vertical datum definition */
+
+typedef struct vdatum_s vdatum;
+typedef struct vdatum_func_s vdatum_func;
+
+struct vdatum_s
+{
+    char *code;           /* Code for the vertical datum */
+    char *name;           /* Name of the surface                   */
+    char *source;      /* Where the coordsys was loaded from */
+    vdatum *basehrs;   /* Base reference surface pointer     */ 
+    ref_frame *rf;        /* The underlying reference frame     */
+    vdatum_func *func; /* Function surface height relative base surface, 
+                              or to ellipsoidal if basehrscode is null */
+};
+
 /* Definition of a coordinate system */
 
 typedef struct
@@ -149,8 +165,10 @@ typedef struct
     char *source;      /* Where the coordsys was loaded from */
     ref_frame *rf;     /* The reference frame                */
     projection *prj;   /* The projection - if any            */
+    vdatum *hrs;   /* Vertical datum, if any   */
     char crdtype;      /* As per CSTP_ enum above            */
     char gotrange;     /* Defines whether a valid range has  */
+    char ownsrf;       /* If true then CS owns rf            */
     double emin, nmin; /* Easting northing limits - if defined */
     double emax, nmax;
     double ltmin, lnmin;  /* Latitude/longitude range */
@@ -192,6 +210,9 @@ typedef struct
     char     errmsg[CONVERRSIZE]; /* Last error message */;
     coord_conversion_rf crf[CONVMAXRF]; /* Conversion rf steps */
     int      ncrf;      /* Number of steps used */
+    vdatum_func *hrf[CONVMAXRF]; /* Vertical datum functions */
+    int      nhrf_from;  /* Number of vertical datum functions from source */
+    int      nhrf_to;   /* Number of vertical datum functions to target */
 
 } coord_conversion;
 
@@ -262,6 +283,19 @@ coordsys *copy_coordsys( coordsys *cs );
 coordsys *related_coordsys( coordsys *cs, int type );
 void delete_coordsys( coordsys *cs );
 
+/* Set the vertical datum for the coordinate system.  The 
+ * coordinate system takes ownership of the vertical datum
+ *
+ * If they are not compatible (based on same datum), then 
+ * set_coordsys_vdatum will delete it.
+ */
+
+bool coordsys_vdatum_compatible( coordsys *cs, vdatum *hrs );
+vdatum *coordsys_vdatum( coordsys *cs );
+int set_coordsys_vdatum( coordsys *cs, vdatum *hrs );
+void set_coordsys_geoid( coordsys *cs, const char *geoidfile );
+bool coordsys_heights_orthometric( coordsys *cs );
+
 /* Define the reference epoch for the coordinate system deformation model */
 
 void define_deformation_model_epoch( coordsys *cs, double epoch );
@@ -288,6 +322,25 @@ void define_coordsys_units( coordsys *cs,
 
 int check_coordsys_range( coordsys *cs, double xyz[3] );
 
+/* Routines relating to vertical datum systems */
+
+vdatum *create_vdatum( const char *code, const char *name, 
+                           vdatum *basehrs, ref_frame *rf,
+                           vdatum_func *hrf );
+vdatum *geoid_vdatum( const char *geoidfile, ref_frame *rf );
+vdatum *copy_vdatum( vdatum *hrs );
+int identical_vdatum( vdatum *hrs1, vdatum *hrs2 );
+void delete_vdatum( vdatum *hrs );
+int calc_vdatum_offset( vdatum *hrs, double llh[3], double *height, double *exu );
+
+/* Calculate geoid information from coordinate info.  If exu is not null
+ * it is assumed to be a double[3] and receives the coordinates and
+ * deflection of the vertical */ 
+
+int coordsys_geoid_exu( coordsys *cs, double llh[3], double *height, double *exu );
+
+vdatum *base_vdatum( vdatum *hrs );
+ref_frame *vdatum_ref_frame( vdatum *hrs );
 
 /*=====================================================================*/
 /* Creating coordinate system components from definitions in a char    */
@@ -309,6 +362,10 @@ coordsys   *parse_coordsys_def  ( input_string_def *is,
                                   ref_frame *(*getrf)(const char *code, int loadref ));
 
 int parse_crdsys_epoch( const char *epochstr, double *epoch );
+
+vdatum *parse_vdatum_def ( input_string_def *is, 
+                                  ref_frame *(*getrf)(const char *code, int loadref ),
+                                  vdatum *(*gethrs)(const char *code, int loadref ));
 
 /*=====================================================================*/
 /* Getting information about components of coordinate systems.         */
@@ -390,7 +447,6 @@ void proj_to_geog( projection *prj, double easting, double northing,
 /* If the input or output coordinate systems are geocentric, then the  */
 /* gravitational components are ignored.                               */
 
-
 int define_coord_conversion( coord_conversion *conv,
                              coordsys *from, coordsys *to );
 
@@ -401,6 +457,11 @@ int define_coord_conversion( coord_conversion *conv,
 /* to convert where deformation models have different conversion epochs */
 
 int define_coord_conversion_epoch( coord_conversion *conv,
+                                   coordsys *from, coordsys *to, double convepoch );
+
+/* Version converts ellipsoidal coordinates - ignores vertical datum */
+
+int define_ellipsoidal_coord_conversion_epoch( coord_conversion *conv,
                                    coordsys *from, coordsys *to, double convepoch );
 
 int convert_coords( coord_conversion *conv,
@@ -416,6 +477,7 @@ int  describe_ref_frame( output_string_def *os, ref_frame *rf );
 int  describe_deformation_model( output_string_def *os, ref_frame *rf );
 int  describe_ellipsoid( output_string_def *os, ellipsoid *el );
 int  describe_projection( output_string_def *os, projection *prj );
+int  describe_vdatum( output_string_def *os, coordsys *cs );
 int  describe_coordsys( output_string_def *os, coordsys *cs );
 
 /*=======================================================================*/
@@ -428,7 +490,7 @@ void install_crdsys_wgs84( void );
 void install_crdsys_nzmg( void );
 void install_crdsys_nz_metre_circuits( void );
 
-/* Get definitions from a file file  */
+/* Get definitions from a file */
 
 int install_crdsys_file( const char *file_name );
 const char* get_default_crdsys_file();
@@ -454,12 +516,23 @@ const char *ellipsoid_list_desc( int item );
 ellipsoid * ellipsoid_from_list( int item );
 ellipsoid * load_ellipsoid( const char *code );
 
+/* Note - load_coordsys handles vertical datum also as cscode/hrscode */
 
 int coordsys_list_count( void);
 const char *coordsys_list_code( int item );
 const char *coordsys_list_desc( int item );
 coordsys * coordsys_from_list( int item );
 coordsys * load_coordsys( const char *code );
+/* coordsys_load_code returns the code a coordinate system including potential hrs
+ * can be loaded as.  Returns a pointer to a static buffer, so must be used or 
+ * copied immediately! */
+const char* coordsys_load_code( coordsys *cs );
+
+int vdatum_list_count( void);
+const char *vdatum_list_code( int item );
+const char *vdatum_list_desc( int item );
+vdatum * vdatum_from_list( int item );
+vdatum * load_vdatum( const char *code );
 
 int get_notes( int type, const char *code, output_string_def *os );
 int get_crdsys_notes( coordsys *cs, output_string_def *os );
