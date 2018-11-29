@@ -54,7 +54,6 @@ FILES=\
     ../src/snaplib/dbl4/dbl4_utl_date.c \
     ../src/snaplib/dbl4/dbl4_utl_grid.c \
     ../src/snaplib/dbl4/dbl4_utl_lnzdef.c \
-    ../src/snaplib/dbl4/dbl4_utl_shiftmodel.c \
     ../src/snaplib/dbl4/dbl4_utl_trig.c \
     ../src/snaplib/dbl4/snap_dbl4_interface.c \
     ../src/snaplib/geoid/geoid.c \
@@ -66,11 +65,15 @@ FILES=\
     ../src/snaplib/util/datafile.c \
     ../src/snaplib/util/dms.c \
     ../src/snaplib/util/dstring.c \
+    ../src/snaplib/util/getversion.c \
+    ../src/snaplib/util/get_date.c \
     ../src/snaplib/util/errdef.c \
+    ../src/snaplib/util/filelist.c \
     ../src/snaplib/util/geodetic.c \
     ../src/snaplib/util/iostring.c \
     ../src/snaplib/util/license.c \
-    ../src/snaplib/util/linklist.c 
+    ../src/snaplib/util/linklist.c \
+    ../src/snaplib/util/strarray.c 
 
 OBJECTS = $(FILES:.c=.o)
 

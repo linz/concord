@@ -15,7 +15,7 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <ctype.h>
+#include "util/snapctype.h"
 
 #include "coordsys/coordsys.h"
 #include "coordsys/crdsys_src.h"
@@ -131,7 +131,6 @@ coordsys * load_coordsys( const char *code )
     const char *dtmptr=0;
     const char *enddtmptr=0;
     const char *epochptr=0;
-    const char *endepochptr=0;
     const char *hrsptr=0;
     const char *endhrsptr=0;
     const char *cptr;
@@ -170,7 +169,6 @@ coordsys * load_coordsys( const char *code )
         cptr++;
         epochptr=cptr;
         while( *cptr ) cptr++;
-        endepochptr=cptr;
     }
 
     /* Invalid coordinate system definition */
@@ -380,6 +378,19 @@ int get_crdsys_notes( coordsys *cs, output_string_def *os  )
         if( get_notes( CS_REF_FRAME_NOTE, cs->rf->code, os  ) == OK ) sts=OK;
     }
     return sts;
+}
+
+const char *get_crdsys_file( const char *filename, const char *extension )
+{
+    const char *found=0;
+    for( crdsys_source_def *csd = sources; csd; csd = csd->next )
+        if( csd->getcsfile )
+        {
+
+            found = (*csd->getcsfile)( csd->data, filename, extension );
+            if( found ) break;
+        }
+    return found;
 }
 
 static int gcc_notes( int type, const char *code1, const char *code2, output_string_def *os )

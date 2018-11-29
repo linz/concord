@@ -25,7 +25,7 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <ctype.h>
+#include "util/snapctype.h"
 
 #ifndef SEEK_SET
 #define SEEK_SET 0
@@ -33,6 +33,7 @@
 
 #include "util/chkalloc.h"
 #include "util/fileutil.h"
+#include "util/filelist.h"
 #include "util/datafile.h"
 #include "util/pi.h"
 #include "util/errdef.h"
@@ -43,7 +44,7 @@
 
 static int default_reclen = 256;
 
-#define ISSPACE(x) ((x)==' ' || (x)=='\r' || (x)=='\n' || (x)=='\t' || (x)=='\x1A')
+#define ISSPACEZ(x) (ISSPACE(x) || (x)=='\x1A')
 
 static const char *utf8_bom = "\xEF\xBB\xBF";
 static const char *utf16_bom = "\xFF\xFE\x46";
@@ -76,11 +77,18 @@ DATAFILE *df_open_data_file( const char *fname, const char *description )
         return NULL;
     }
 
+    strncpy(msg,description,79);
+    msg[79]=0;
+    for( char *c=msg; *c; c++ ){ if( *c == ' ' ) *c='_'; }
+    int typelen=strlen(msg);
+    if( typelen > 5 && strcmp(msg+typelen-5,"_file") == 0 ) msg[typelen-5]=0;
+    record_filename(fname,msg);
+
     nch = fread(msg,1,80,f);
     unicode = 0;
     binary = 0;
-    if( nch >= strlen(utf8_bom) && memcmp(msg,utf8_bom,strlen(utf8_bom))==0) unicode = 1;
-    if( nch >= strlen(utf16_bom) && memcmp(msg,utf16_bom,strlen(utf16_bom))==0) unicode = 2;
+    if( (nch >= (int) strlen(utf8_bom)) && memcmp(msg,utf8_bom,strlen(utf8_bom))==0) unicode = 1;
+    if( (nch >= (int) strlen(utf16_bom)) && memcmp(msg,utf16_bom,strlen(utf16_bom))==0) unicode = 2;
     if( ! unicode )
     {
         for( i = 0; i < nch; i++ )
@@ -172,7 +180,7 @@ int df_skip_to_blank_line( DATAFILE *d )
             if( blank ) return OK;
             blank = 1;
         }
-        else if( ! ISSPACE(c) )
+        else if( ! ISSPACEZ(c) )
         {
             blank = 0;
         }
@@ -227,10 +235,10 @@ int df_read_data_file( DATAFILE *d )
             }
             // Trim whitespace
             int nch = strlen(line);
-            while( nch-- && isspace(line[nch])) { line[nch] = 0; }
+            while( nch-- && ISSPACEZ(line[nch])) { line[nch] = 0; }
             offset = lineoffset + nch;
             // Check for line continuation
-            if( nch >= 1 && line[nch] == d->continuation_char && isspace(line[nch-1]))
+            if( nch >= 1 && line[nch] == d->continuation_char && ISSPACEZ(line[nch-1]))
             {
                 line[offset] = 0;
             }
@@ -241,7 +249,7 @@ int df_read_data_file( DATAFILE *d )
         }
         // Retrim in case continuation only adds blanks
         line = d->inrec;
-        while( offset > 0 && isspace(line[offset])) { line[offset--] = 0; }
+        while( offset > 0 && ISSPACEZ(line[offset])) { line[offset--] = 0; }
     }
 
     d->inrecptr = d->lastrecptr = d->inrec;
@@ -282,7 +290,7 @@ int df_read_field( DATAFILE *d, char *field, int nfld )
     char *s, *e;
 
     s = d->inrecptr;
-    while( ISSPACE(*s) ) s++;
+    while( ISSPACEZ(*s) ) s++;
 
     d->lastrecptr = s;
 
@@ -305,7 +313,7 @@ int df_read_field( DATAFILE *d, char *field, int nfld )
     else
     {
         e = s;
-        while( *e && ! ISSPACE(*e) ) e++;
+        while( *e && ! ISSPACEZ(*e) ) e++;
         d->inrecptr = e;
     }
 
@@ -416,24 +424,24 @@ int df_read_hpangle( DATAFILE *d, double *v )
 
     for( f = field; *f != '.'; f++ )
     {
-        if( !isdigit(*f) ) return 0;
+        if( !ISDIGIT(*f) ) return 0;
         deg = deg*10 + (*f - '0');
     }
     f++;
-    if( !isdigit( *f )) return 0;
+    if( !ISDIGIT( *f )) return 0;
     min = (*f - '0')*10;
     f++;
-    if( !isdigit( *f )) return 0;
+    if( !ISDIGIT( *f )) return 0;
     min += (*f - '0' );
     f++;
-    if( !isdigit( *f )) return 0;
+    if( !ISDIGIT( *f )) return 0;
     sec = (*f - '0')*10;
     f++;
-    if( !isdigit( *f )) return 0;
+    if( !ISDIGIT( *f )) return 0;
     sec += (*f - '0' );
     f++;
     den = 0.1;
-    while( isdigit(*f) )
+    while( ISDIGIT(*f) )
     {
         sec += (*f - '0')*den;
         den *= 0.1;
@@ -450,7 +458,7 @@ int df_read_rest( DATAFILE *d, char *line, int nlin )
     char *s;
     d->lastrecptr = d->inrecptr;
     s = d->inrecptr;
-    while ( ISSPACE(*s) ) s++;
+    while ( ISSPACEZ(*s) ) s++;
     if( !*s ) { *line = 0; d->inrecptr = s; return 0; }
     nlin--;
     for( ; nlin > 0 && *s ; s++ )
@@ -483,7 +491,7 @@ int df_end_of_line( DATAFILE *d )
 {
     char *s;
     s = d->inrecptr;
-    while( ISSPACE(*s) ) s++;
+    while( ISSPACEZ(*s) ) s++;
     d->inrecptr = s;
     return *s ? 0 : 1;
 }
@@ -492,7 +500,13 @@ int df_end_of_line( DATAFILE *d )
 int df_data_file_error( DATAFILE *d, int sts, const char *errmsg )
 {
     char fmsg[MAX_FILENAME_LEN+40];
-    sprintf(fmsg,"Line: %ld  File: %.*s", d->reclineno, MAX_FILENAME_LEN, d->fname );
+    char fline[20];
+    fline[0]=0;
+    if( d->inrec[0] )
+    {
+        sprintf(fline,"Line: %ld  ",d->reclineno);
+    }
+    sprintf(fmsg,"%sFile: %.*s", fline, MAX_FILENAME_LEN, d->fname );
     handle_error(sts,errmsg,fmsg );
     if( sts >= WARNING_ERROR ) d->errcount++;
     return sts;

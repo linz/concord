@@ -11,9 +11,7 @@
 
 */
 
-#ifndef IOSTRING_H_RCSID
-#define IOSTRING_H_RCSID "$Id: iostring.h,v 1.2 2004/04/22 02:35:26 ccrook Exp $"
-#endif
+#include <stdio.h>
 
 /* Definitions of an input and output string structure */
 

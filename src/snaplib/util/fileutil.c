@@ -34,6 +34,7 @@ static char *usercfg=NULL;
 static char *syscfg=NULL;
 static char *imgpath=NULL;
 static char *imgdir=NULL;
+static char *imgname=NULL;
 static const char *projdir=NULL;
 static char *filename=NULL;
 static int filenamelen=0;
@@ -50,6 +51,8 @@ static int config_dirs_set=0;
 #define MAXPROJSTACK 10
 static const char *projstack[MAXPROJSTACK];
 static int nprojstack=0;
+
+#define SNAPTMP_TEMPLATE "SNAP_TMP_XXXXXX"
 
 static char *filenameptr( int reqlen )
 {
@@ -99,6 +102,22 @@ int is_dir(const char *path)
         return 1;
     else
         return 0;
+}
+
+time_t  file_modtime(const char *path)
+{
+    struct _stat info;
+    if(_stat( path, &info ) != 0)
+        return 0;
+    return info.st_mtime;
+}
+
+int  file_size(const char *path)
+{
+    struct _stat info;
+    if(_stat( path, &info ) != 0)
+        return 0;
+    return info.st_size;
 }
 
 char *build_config_filespec( char *spec, int nspec,
@@ -283,6 +302,18 @@ const char *user_config_dir()
 }
 
 #endif
+
+const char *image_name()
+{
+    if( imgname ) return imgname;
+    const char *path=image_path();
+    int np=path_len(path,0);
+    int np2=path_len(path+np,1);
+    imgname= (char *) check_malloc(np2+1);
+    strncpy(imgname,path+np,np2);
+    imgname[np2]=0;
+    return imgname;
+}
 
 const char *image_dir()
 {
@@ -487,62 +518,6 @@ const char *find_file( const char *name, const char *dflt_ext, const char *relat
         spec = find_config_file( config, name, dflt_ext );
     }
     return spec;
-}
-
-typedef struct s_tmpfile_def
-{
-    char *name;
-    FILE *handle;
-    struct s_tmpfile_def *next;
-} tmpfile_def;
-
-static tmpfile_def *tmpfile_list = 0;
-
-static void delete_temp_files( void )
-{
-    tmpfile_def *del = tmpfile_list;
-    while( tmpfile_list )
-    {
-        del = tmpfile_list;
-        tmpfile_list = tmpfile_list->next;
-        if( _unlink( del->name ) != 0 )
-        {
-            fclose(del->handle);
-            _unlink(del->name);
-        }
-        check_free(del->name);
-        check_free(del);
-    }
-}
-
-FILE *snaptmpfile()
-{
-    FILE *f;
-    char *name;
-    tmpfile_def *def;
-
-    name = _strdup(_tempnam("/tmp","snaptmp.") );
-    if( ! name ) return NULL;
-    f = fopen(name,"w+b");
-    if( ! f )
-    {
-        check_free(name);
-        return NULL;
-    }
-    def = (tmpfile_def *) check_malloc( sizeof(tmpfile_def) );
-    if( ! def )
-    {
-        fclose(f);
-        check_free(name);
-        return NULL;
-    }
-    if( ! tmpfile_list ) atexit( delete_temp_files );
-    def->handle = f;
-    def->name = name;
-    def->next = tmpfile_list;
-    tmpfile_list = def;
-
-    return f;
 }
 
 int skip_utf8_bom( FILE *f )

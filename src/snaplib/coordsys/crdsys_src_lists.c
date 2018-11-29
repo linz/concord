@@ -101,7 +101,7 @@ static void delete_crdsys_list( crdsys_list *cl )
 
 // #pragma warning( disable : 4100)
 
-static int delete_crdsys_lists( void *dummy )
+static int delete_crdsys_lists( void * )
 {
     delete_crdsys_list( &rflist );
     delete_crdsys_list( &ellist );
@@ -117,6 +117,7 @@ static void register_lists( void )
     crdsys_source_def csd;
     if( registered ) return;
     csd.data = NULL;
+    csd.getcsfile = NULL;
     csd.getel = NULL;
     csd.getrf = NULL;
     csd.getcs = NULL;

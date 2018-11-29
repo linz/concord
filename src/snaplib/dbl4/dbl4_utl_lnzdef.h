@@ -13,9 +13,6 @@
 **************************************************************************
 */
 
-static char dbl4_utl_linzdef_h_sccsid[] = "%W%";
-
-
 #ifndef DBL4_TYPES_H
 #include "dbl4_types.h"
 #endif
@@ -29,6 +26,8 @@ typedef void *hLinzDefModel;
 StatusType utlCreateLinzDef( hBinSrc blob, hLinzDefModel *def );
 
 StatusType utlReleaseLinzDef( hLinzDefModel def );
+
+StatusType utlSetLinzDefVersion( hLinzDefModel def, const char *version );
 
 StatusType utlLinzDefCoordSysDef( hLinzDefModel def, char ** crdsys );
 

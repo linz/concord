@@ -13,9 +13,6 @@
 
 */
 
-#ifndef COORDSYS_H_RCSID
-#define COORDSYS_H_RCSID "$Id: coordsys.h,v 1.3 2004/04/22 02:34:21 ccrook Exp $"
-#endif
 /*
 
 coordsys.h - header file for routines managing coordinate systems.
@@ -434,9 +431,9 @@ double *xyz_to_llh( ellipsoid *el, double xyz[3], double llh[3] );
 
 /* Conversion from latitude/longitude <=> projection coordinates */
 
-void geog_to_proj( projection *prj, double lon, double lat,
+int geog_to_proj( projection *prj, double lon, double lat,
                    double *easting, double *northing );
-void proj_to_geog( projection *prj, double easting, double northing,
+int proj_to_geog( projection *prj, double easting, double northing,
                    double *lon, double *lat );
 
 /* Conversion of coordinates from one coordinate system to another     */
@@ -543,5 +540,13 @@ int get_notes( int type, const char *code, output_string_def *os );
 int get_crdsys_notes( coordsys *cs, output_string_def *os );
 int get_conv_code_notes( int type, const char *code1, const char *code2, output_string_def *os );
 int get_conv_notes( coord_conversion *conv, output_string_def *os );
+
+/*  get_crdsys_file looks for a file relative to installed file sources.
+ *  find_coordsys_data_file looks for a file that could be local, project,
+ *  or coordinate system based.  It will look in the coordsys config section
+ *  if it is not found elsewhere
+ */
+const char *get_crdsys_file( const char *filename, const char *extension );
+const char *find_coordsys_data_file( const char *filename,const char *extension );
 
 #endif /* COORDSYS_H defined */

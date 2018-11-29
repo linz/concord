@@ -2,10 +2,6 @@
 /* Program concord - front end to coordinate conversion routines */
 /* Version 2.0: Uses SNAP coordinate conversion routines....     */
 
-#define PROGNAME "concord"
-#define VERSION  "3.5"
-#define PROGDATE __DATE__
-
 /* Revision history:
    1.1) Changes code for latitude and longitude from GEOD to GEOG
         19/3/90
@@ -75,24 +71,25 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
-#include <ctype.h>
+#include "util/snapctype.h"
 
-#if defined( __BORLANDC__ )
-#include <conio.h>
-#include <io.h>
-#elif defined( _MSC_VER )
+#if defined( _MSC_VER )
 #include <conio.h>
 #include <io.h>
 #else
 #include <unistd.h>
 #endif
 
+#define GETVERSION_SET_PROGRAM_DATE
+
 #include "coordsys/coordsys.h"
 #include "geoid/geoid.h"
 #include "util/fileutil.h"
+#include "util/dstring.h"
 #include "util/license.h"
 #include "util/errdef.h"
 #include "util/pi.h"
+#include "util/getversion.h"
 
 #define TRUE 1
 #define FALSE 0
@@ -140,6 +137,7 @@ static int  output_vprec;
 #define AF_DEG 0
 #define AF_DM  1
 #define AF_DMS 2
+#define AF_RAD 3
 
 static char transform_heights;
 
@@ -206,17 +204,13 @@ output_string_def printf_writer = {0,printf_func};
 
 static void clear_screen(void)
 {
-#ifdef __BORLANDC__
-    clrscr();
-#else
     printf("\n\n=====================================================================\n");
-#endif
 }
 
 
 // #pragma warning (disable : 4100)
 
-static int printf_func( const char *s, void *dummy )
+static int printf_func( const char *s, void * )
 {
     printf("%s",s);
     return 0;
@@ -434,7 +428,7 @@ static int pause_output( void )
     do
     {
         c = getchar();
-        if( ! isspace(c) ) domore = 0;
+        if( ! ISSPACE(c) ) domore = 0;
     }
     while( c != '\n' && c != EOF );
     return domore;
@@ -446,9 +440,9 @@ static void help( void )
 {
     puts("");
     printf("%s - Converts coordinates between different coordinate systems\n",
-           PROGNAME);
+           PROGRAM_NAME);
     puts("");
-    printf("Syntax:  %s [switches] [input_file] [output_file]\n",PROGNAME);
+    printf("Syntax:  %s [switches] [input_file] [output_file]\n",PROGRAM_NAME);
     puts("");
     puts("Switches:  -a       Ask for program parameters");
     puts("           -k       Ask for coordinates at the keyboard");
@@ -510,8 +504,8 @@ static void help( void )
 
 static void error_exit( const char *errmsg1, const char * errmsg2 )
 {
-    printf("%s: %s%s\n\n",PROGNAME,errmsg1,errmsg2);
-    printf("Enter %s -H for a list of command line parameters\n", PROGNAME);
+    printf("%s: %s%s\n\n",PROGRAM_NAME,errmsg1,errmsg2);
+    printf("Enter %s -H for a list of command line parameters\n", PROGRAM_NAME);
     exit(1);
 }
 
@@ -574,6 +568,7 @@ static void decode_proj_string( char *code, coordsys **proj,
         if (s==NULL || *s=='h' || *s=='H' || *s == 's' || *s == 'S' ) return;
         if( *s=='m' || *s=='M') { *dms = AF_DM; return;}
         if( *s=='d' || *s=='D') { *dms = AF_DEG; return;}
+        if( *s=='r' || *s=='R') { *dms = AF_RAD; return;}
         sprintf(errmsg,"Invalid angle type  %s for %s coordinates",s,iostring);
         error_exit(errmsg,"");
     }
@@ -625,7 +620,7 @@ static void list_vertical_datum_with_pause( void )
     int maxi;
     int i;
     int nl;
-    printf("\n%s: Vertical datum codes are:\n",PROGNAME);
+    printf("\n%s: Vertical datum codes are:\n",PROGRAM_NAME);
     maxi = vdatum_list_count();
     nl = 0;
     for( i = 0; i < maxi; i++ )
@@ -645,7 +640,7 @@ static void list_ref_frame_with_pause( void )
     int maxi;
     int i;
     int nl;
-    printf("\n%s: Reference frame codes are:\n",PROGNAME);
+    printf("\n%s: Reference frame codes are:\n",PROGRAM_NAME);
     maxi = ref_frame_list_count();
     nl = 0;
     for( i = 0; i < maxi; i++ )
@@ -711,7 +706,7 @@ static void list_coordsys_and_exit( int argc, char *argv[] )
     }
     if( ncs == 0 )
     {
-        printf("\n%s: Valid coordinate systems are:\n",PROGNAME);
+        printf("\n%s: Valid coordinate systems are:\n",PROGRAM_NAME);
         list_coordsys_with_pause();
     }
     exit(1);
@@ -719,7 +714,7 @@ static void list_coordsys_and_exit( int argc, char *argv[] )
 
 static void list_program_details_and_exit( void )
 {
-    printf("\nProgram %s version %s, dated %s\n",PROGNAME,VERSION,PROGDATE);
+    printf("\nProgram %s version %s, dated %s\n",PROGRAM_NAME,PROGRAM_VERSION,PROGRAM_DATE);
     printf("Copyright: Land Information New Zealand\n");
     printf("Author: Chris Crook\n");
     printf("Coordsys file: %s\n",coordsys_file);
@@ -762,7 +757,7 @@ static void parse_command_line( int argc, char **argv )
         if( ! arg[1] ) break;
         /* If -- then signals end of options */
         if( arg[1] == '-' && ! arg[2] ) { argc--; argv++; break; }
-        argchar=toupper(arg[1]);
+        argchar=TOUPPER(arg[1]);
         prm=strchr(switch_args,argchar);
         if( prm )
         {
@@ -991,6 +986,10 @@ static void prompt_for_proj(coordsys **proj,
             {
                 *dms = AF_DM; break;
             }
+            else if( instring[0] == 'r' || instring[0] == 'R' )
+            {
+                *dms = AF_RAD; break;
+            }
             else if( instring[0] == 'h' || instring[0] == 'H' ||
                      instring[0] == 's' || instring[0] == 'S' )
             {
@@ -1087,7 +1086,7 @@ static void prompt_for_parameters( void )
     static char output_file[81];
     char ans[2];
 
-    printf("\n%s:  Coordinate conversion program\n",PROGNAME);
+    printf("\n%s:  Coordinate conversion program\n",PROGRAM_NAME);
     printf("\nInput coordinates:\n");
     prompt_for_proj(&input_cs,&input_dms,&input_ne,&input_h,&input_ortho,"input");
     printf("\nOutput coordinates:\n");
@@ -1143,8 +1142,22 @@ static void head_output( FILE *out );
 
 static void show_example_input( void  )
 {
-    static const char *east[] = {"315378.28","2571312.90","171.14238","171 30.21 E","171 41 53.55 E"};
-    static const char *north[] = {"728910.43","6025519.64","-41.25531","41 22.05 S","41 22 03.26 S"};
+    static const char *east[] = {
+        "315378.28",
+        "2571312.90",
+        "171.14238",
+        "171 30.21 E",
+        "171 41 53.55 E",
+        "2.98699802"
+        };
+    static const char *north[] = {
+        "728910.43",
+        "6025519.64",
+        "-41.25531",
+        "41 22.05 S",
+        "41 22 03.26 S",
+        "-0.72004099"
+        };
     const char *c1, *c2;
     int ncd;
 
@@ -1162,6 +1175,7 @@ static void show_example_input( void  )
         case AF_DEG: ncd = 2; break;
         case AF_DM:  ncd = 3; break;
         case AF_DMS: ncd = 4; break;
+        case AF_RAD: ncd = 5; break;
         }
     }
     if( input_ne )
@@ -1214,6 +1228,7 @@ static void tidy_up_parameters( void )
         {
             switch(output_dms)
             {
+                case AF_RAD:  output_prec += 7; break;
                 case AF_DEG:  output_prec += 5; break;
                 case AF_DM:   output_prec += 3; break;
                 case AF_DMS:  output_prec += 1; break;
@@ -1226,6 +1241,7 @@ static void tidy_up_parameters( void )
     {
         switch(output_dms)
         {
+        case AF_RAD:  input_prec -= 6; break;
         case AF_DEG:  input_prec -= 5; break;
         case AF_DM:   input_prec -= 3; break;
         case AF_DMS:  input_prec -= 1; break;
@@ -1515,7 +1531,7 @@ static void head_output( FILE * out )
 {
     output_string_def os;
     fprintf(out,"\n%s - coordinate conversion program (version %s dated %s)\n",
-            PROGNAME,VERSION,PROGDATE);
+            PROGRAM_NAME,PROGRAM_VERSION,PROGRAM_DATE);
     fprintf(out,"\nInput coordinates:  %s", input_cs->name);
     /* if( use_deformation ) fprintf(out," at epoch %.2lf",cnv.epochfrom); */
     fprintf(out,"\n");
@@ -1658,8 +1674,8 @@ static int read_dms( FILE *input, DMS *dms, const char *hem )
     if(strlen(string)==1 && hem )
     {
         c = string[0];
-        dms->neg = toupper(c)==hem[1];
-        if (dms->neg || toupper(c)==hem[0])
+        dms->neg = TOUPPER(c)==hem[1];
+        if (dms->neg || TOUPPER(c)==hem[0])
         {
             hemdef=1;
             if(read_string(input,separator,string,20)<=0) return 3;
@@ -1687,7 +1703,7 @@ static int read_dms( FILE *input, DMS *dms, const char *hem )
 
         /* Is the hemisphere indicator at the end of the seconds */
 
-        c = toupper( (int) string[nc-1]);
+        c = TOUPPER( (int) string[nc-1]);
         dms->neg = c==hem[1];
         if ( dms->neg || c==hem[0] )
         {
@@ -1700,8 +1716,8 @@ static int read_dms( FILE *input, DMS *dms, const char *hem )
         else
         {
             while( (c=getc(input)) == ' ' || c == '\t' );
-            dms->neg = toupper(c)==hem[1];
-            if (dms->neg || toupper(c)==hem[0]) hemdef=1;
+            dms->neg = TOUPPER(c)==hem[1];
+            if (dms->neg || TOUPPER(c)==hem[0]) hemdef=1;
             else { ungetc(c,input); }
         }
     }
@@ -1735,7 +1751,7 @@ static int read_coordinates( void )
     DMS dms;
     int sts;
     char hemdef;
-    if (input_dms)
+    if (input_dms == AF_DM || input_dms == AF_DMS )
     {
         dms.no_seconds = (input_dms == AF_DM);
         sts = read_dms( crdin, &dms, indms1 );
@@ -1755,7 +1771,7 @@ static int read_coordinates( void )
         if (sts != 0) return sts;
     }
     if( input_h ) sts = read_number( crdin, in3 );
-    if( input_latlong ) { *in1 *= DTOR; *in2 *= DTOR; }
+    if( input_latlong && input_dms != AF_RAD ) { *in1 *= DTOR; *in2 *= DTOR; }
     return sts;
 }
 
@@ -1817,8 +1833,8 @@ static void write_coords( FILE *out, double *c1, double *c2, double *c3,
     if( !sep ) sep = ' ';
     if( separator ) len = vlen = 0;
     mult = 1.0;
-    if( radians ) mult = RTOD;
-    if (dms)
+    if( radians && dms != AF_RAD ) mult = RTOD;
+    if (dms == AF_DMS || dms == AF_DM )
     {
         write_dms(out,*c1*mult,prec,dms==AF_DM,h1);
         fprintf(out,"%c",sep);
@@ -1911,7 +1927,6 @@ static void report_conv_error( int sts )
 static void process_coordinates( void )
 {
     long start_loc;
-    double inhgt;
     int sts;
     char sep[2];
     char *prtsep;
@@ -1929,7 +1944,6 @@ static void process_coordinates( void )
         {
             if(!skip_errors) {report_read_error(); ncrderr++;}
         }
-        inhgt = inxyz[2];
         if( sts == OK )
         {
             if( sts == OK )
@@ -1986,6 +2000,8 @@ int main( int argc, char *argv[] )
     {
         printf("Cannot find coordsys.def file\n");
     }
+    // coordsys_file may be overwritten if from get_default_crdsys_file
+    coordsys_file=copy_string(coordsys_file);
     install_default_projections();
     sts = install_crdsys_file( coordsys_file );
     if( sts != OK )

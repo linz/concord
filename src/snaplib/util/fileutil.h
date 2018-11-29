@@ -11,10 +11,9 @@
 
 */
 
-#ifndef FILEUTIL_H_RCSID
-#define FILEUTIL_H_RCSID "$Id: fileutil.h,v 1.2 2004/04/22 02:35:25 ccrook Exp $"
-#endif
 /* fileutil.h: routines to assist file management */
+
+#include <time.h>
 
 #ifndef UNIX
 #define PATH_SEPARATOR '\\'
@@ -41,6 +40,9 @@
 
 int path_len( const char *base, int want_name );
 int file_exists( const char *file );
+int is_dir( const char *path );
+int file_size( const char *path );
+time_t file_modtime( const char *path );
 
 /* Compile a filename.  If spec is null then it will return a static variable which
    may be modified by other calls to these routines.
@@ -58,6 +60,7 @@ char *build_config_filespec( char *spec, int nspec,
 
 const char *image_path();
 const char *image_dir();
+const char *image_name();
 const char *system_config_dir();
 const char *user_config_dir();
 const char *project_dir();
@@ -102,12 +105,14 @@ const char *find_file( const char *name, const char *dflt_ext, const char *base,
 
 /* Create a temporary file, and set up a handler to delete it when the program terminates */
 
-FILE *snaptmpfile();
+#define snaptmpfile tmpfile
 
 /* Skip unicode BOM (byte order marker).  Assumes file pointer is set to beginning of file */
 /* Returns 1 if successful (UTF8 or no BOM), 0 if UTF16 BOM at start of file */
 /* Returns 1 if file pointer is not set to the beginning of the file */
 
 int skip_utf8_bom(FILE *f);
+
+time_t file_modtime(const char *filename);
 
 #endif
