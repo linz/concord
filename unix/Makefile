@@ -6,7 +6,6 @@ SYMLINKDIR=/usr/local/bin
 
 FILES=\
     ../src/concord/concord.c \
-    ../src/concord/versioninfo.c \
     ../src/snaplib/coordsys/crdsys_src_default.c \
     ../src/snaplib/coordsys/crdsys_src_lists.c \
     ../src/snaplib/coordsys/emprojr.c \
