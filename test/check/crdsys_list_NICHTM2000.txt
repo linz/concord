@@ -1,8 +1,10 @@
-
 Coordinate system: Mount Nicholas Circuit 2000
-Reference frame: New Zealand Geodetic Datum 2000 (version 20160701)
+Reference frame: New Zealand Geodetic Datum 2000 (version 20180701)
 LINZ deformation model
-    NZGD2000 deformation model
+    NZGD2000 deformation model (20180701)
+    Deformation model: NZGD2000 deformation model
+    Datum: New Zealand Geodetic Datum 2000 (reference epoch 2000-01-01)
+    Version: 20180701
     New Zealand Deformation Model.
     Defines the secular model (National Deformation Model)
     and patches for significant deformation events since 2000.
@@ -19,19 +21,19 @@ Projection: Transverse Mercator
 Compatible vertical datums:
   NZVD09               New Zealand Vertical Datum 2009
   NZVD2016             New Zealand Vertical Datum 2016
-  AUCKHT1946           Auckland 1946 (NZVD2016)
-  BLUFHT1955           Bluff 1955 (NZVD2016)
-  DUBLHT1960           Dunedin-Bluff 1960 (NZVD2016)
-  DUNEHT1958           Dunedin 1958 (NZVD2016)
-  GISBHT1926           Gisborne 1926 (NZVD2016)
-  LYTTHT1937           Lyttelton 1937 (NZVD2016)
-  MOTUHT1953           Moturiki 1953 (NZVD2016)
-  NAPIHT1962           Napier 1962 (NZVD2016)
-  NELSHT1955           Nelson 1955 (NZVD2016)
-  ONTPHT1964           One Tree Point 1964 (NZVD2016)
-  STISHT1977           Stewart Island 1977 (NZVD2016)
-  TARAHT1970           Taranaki 1970 (NZVD2016)
-  WELLHT1953           Wellington 1953 (NZVD2016)
+  AUCKHT1946           Auckland 1946 (from NZVD2016)
+  BLUFHT1955           Bluff 1955 (from NZVD2016)
+  DUBLHT1960           Dunedin-Bluff 1960 (from NZVD2016)
+  DUNEHT1958           Dunedin 1958 (from NZVD2016)
+  GISBHT1926           Gisborne 1926 (from NZVD2016)
+  LYTTHT1937           Lyttelton 1937 (from NZVD2016)
+  MOTUHT1953           Moturiki 1953 (from NZVD2016)
+  NAPIHT1962           Napier 1962 (from NZVD2016)
+  NELSHT1955           Nelson 1955 (from NZVD2016)
+  ONTPHT1964           One Tree Point 1964 (from NZVD2016)
+  STISHT1977           Stewart Island 1977 (from NZVD2016)
+  TARAHT1970           Taranaki 1970 (from NZVD2016)
+  WELLHT1953           Wellington 1953 (from NZVD2016)
   AUCKHT1946_NZVD09    Auckland 1946 (NZVD09)
   BLUFHT1955_NZVD09    Bluff 1955 (NZVD09)
   DUBLHT1960_NZVD09    Dunedin-Bluff 1960 (NZVD09)

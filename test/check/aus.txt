@@ -1,6 +1,10 @@
 ========== GDA94 ============
 Coordinate system: Geocentric Datum of Australia (GDA94)
-Reference frame: Geocentric Datum of Australia
+Reference frame: Geocentric Datum of Australia 94
+  Relative to GDA2020
+    Translation         (m)     0.06155   -0.01087   -0.04019
+    Rotation          (sec)    -0.03949   -0.03272   -0.03290
+    Scale             (ppm)    -0.00999
 Ellipsoid: Geodetic Reference System 1980 (GRS80)
   a = 6378137.000  1/f = 298.257222
 
@@ -152,7 +156,11 @@ GDA94 to ITRF2008_DW
 0 errors occurred reading or converting coordinates
 ========== MGA94-48 ============
 Coordinate system: MGA94 zone 48
-Reference frame: Geocentric Datum of Australia
+Reference frame: Geocentric Datum of Australia 94
+  Relative to GDA2020
+    Translation         (m)     0.06155   -0.01087   -0.04019
+    Rotation          (sec)    -0.03949   -0.03272   -0.03290
+    Scale             (ppm)    -0.00999
 Ellipsoid: Geodetic Reference System 1980 (GRS80)
   a = 6378137.000  1/f = 298.257222
 Projection: Transverse Mercator
@@ -172,7 +180,11 @@ GDA94 to MGA94-48
 0 errors occurred reading or converting coordinates
 ========== MGA94-49 ============
 Coordinate system: MGA94 zone 49
-Reference frame: Geocentric Datum of Australia
+Reference frame: Geocentric Datum of Australia 94
+  Relative to GDA2020
+    Translation         (m)     0.06155   -0.01087   -0.04019
+    Rotation          (sec)    -0.03949   -0.03272   -0.03290
+    Scale             (ppm)    -0.00999
 Ellipsoid: Geodetic Reference System 1980 (GRS80)
   a = 6378137.000  1/f = 298.257222
 Projection: Transverse Mercator
@@ -192,7 +204,11 @@ GDA94 to MGA94-49
 0 errors occurred reading or converting coordinates
 ========== MGA94-50 ============
 Coordinate system: MGA94 zone 50
-Reference frame: Geocentric Datum of Australia
+Reference frame: Geocentric Datum of Australia 94
+  Relative to GDA2020
+    Translation         (m)     0.06155   -0.01087   -0.04019
+    Rotation          (sec)    -0.03949   -0.03272   -0.03290
+    Scale             (ppm)    -0.00999
 Ellipsoid: Geodetic Reference System 1980 (GRS80)
   a = 6378137.000  1/f = 298.257222
 Projection: Transverse Mercator
@@ -212,7 +228,11 @@ GDA94 to MGA94-50
 0 errors occurred reading or converting coordinates
 ========== MGA94-51 ============
 Coordinate system: MGA94 zone 51
-Reference frame: Geocentric Datum of Australia
+Reference frame: Geocentric Datum of Australia 94
+  Relative to GDA2020
+    Translation         (m)     0.06155   -0.01087   -0.04019
+    Rotation          (sec)    -0.03949   -0.03272   -0.03290
+    Scale             (ppm)    -0.00999
 Ellipsoid: Geodetic Reference System 1980 (GRS80)
   a = 6378137.000  1/f = 298.257222
 Projection: Transverse Mercator
@@ -232,7 +252,11 @@ GDA94 to MGA94-51
 0 errors occurred reading or converting coordinates
 ========== MGA94-52 ============
 Coordinate system: MGA94 zone 52
-Reference frame: Geocentric Datum of Australia
+Reference frame: Geocentric Datum of Australia 94
+  Relative to GDA2020
+    Translation         (m)     0.06155   -0.01087   -0.04019
+    Rotation          (sec)    -0.03949   -0.03272   -0.03290
+    Scale             (ppm)    -0.00999
 Ellipsoid: Geodetic Reference System 1980 (GRS80)
   a = 6378137.000  1/f = 298.257222
 Projection: Transverse Mercator
@@ -252,7 +276,11 @@ GDA94 to MGA94-52
 0 errors occurred reading or converting coordinates
 ========== MGA94-53 ============
 Coordinate system: MGA94 zone 53
-Reference frame: Geocentric Datum of Australia
+Reference frame: Geocentric Datum of Australia 94
+  Relative to GDA2020
+    Translation         (m)     0.06155   -0.01087   -0.04019
+    Rotation          (sec)    -0.03949   -0.03272   -0.03290
+    Scale             (ppm)    -0.00999
 Ellipsoid: Geodetic Reference System 1980 (GRS80)
   a = 6378137.000  1/f = 298.257222
 Projection: Transverse Mercator
@@ -272,7 +300,11 @@ GDA94 to MGA94-53
 0 errors occurred reading or converting coordinates
 ========== MGA94-54 ============
 Coordinate system: MGA94 zone 54
-Reference frame: Geocentric Datum of Australia
+Reference frame: Geocentric Datum of Australia 94
+  Relative to GDA2020
+    Translation         (m)     0.06155   -0.01087   -0.04019
+    Rotation          (sec)    -0.03949   -0.03272   -0.03290
+    Scale             (ppm)    -0.00999
 Ellipsoid: Geodetic Reference System 1980 (GRS80)
   a = 6378137.000  1/f = 298.257222
 Projection: Transverse Mercator
@@ -292,7 +324,11 @@ GDA94 to MGA94-54
 0 errors occurred reading or converting coordinates
 ========== MGA94-55 ============
 Coordinate system: MGA94 zone 55
-Reference frame: Geocentric Datum of Australia
+Reference frame: Geocentric Datum of Australia 94
+  Relative to GDA2020
+    Translation         (m)     0.06155   -0.01087   -0.04019
+    Rotation          (sec)    -0.03949   -0.03272   -0.03290
+    Scale             (ppm)    -0.00999
 Ellipsoid: Geodetic Reference System 1980 (GRS80)
   a = 6378137.000  1/f = 298.257222
 Projection: Transverse Mercator
@@ -312,7 +348,11 @@ GDA94 to MGA94-55
 0 errors occurred reading or converting coordinates
 ========== MGA94-56 ============
 Coordinate system: MGA94 zone 56
-Reference frame: Geocentric Datum of Australia
+Reference frame: Geocentric Datum of Australia 94
+  Relative to GDA2020
+    Translation         (m)     0.06155   -0.01087   -0.04019
+    Rotation          (sec)    -0.03949   -0.03272   -0.03290
+    Scale             (ppm)    -0.00999
 Ellipsoid: Geodetic Reference System 1980 (GRS80)
   a = 6378137.000  1/f = 298.257222
 Projection: Transverse Mercator
@@ -332,7 +372,11 @@ GDA94 to MGA94-56
 0 errors occurred reading or converting coordinates
 ========== MGA94-57 ============
 Coordinate system: MGA94 zone 57
-Reference frame: Geocentric Datum of Australia
+Reference frame: Geocentric Datum of Australia 94
+  Relative to GDA2020
+    Translation         (m)     0.06155   -0.01087   -0.04019
+    Rotation          (sec)    -0.03949   -0.03272   -0.03290
+    Scale             (ppm)    -0.00999
 Ellipsoid: Geodetic Reference System 1980 (GRS80)
   a = 6378137.000  1/f = 298.257222
 Projection: Transverse Mercator
@@ -352,7 +396,11 @@ GDA94 to MGA94-57
 0 errors occurred reading or converting coordinates
 ========== MGA94-58 ============
 Coordinate system: MGA94 zone 58
-Reference frame: Geocentric Datum of Australia
+Reference frame: Geocentric Datum of Australia 94
+  Relative to GDA2020
+    Translation         (m)     0.06155   -0.01087   -0.04019
+    Rotation          (sec)    -0.03949   -0.03272   -0.03290
+    Scale             (ppm)    -0.00999
 Ellipsoid: Geodetic Reference System 1980 (GRS80)
   a = 6378137.000  1/f = 298.257222
 Projection: Transverse Mercator
