@@ -745,7 +745,7 @@ static char * command_line_option( char opt )
 
 static void parse_command_line( int argc, char **argv )
 {
-    char errmsg[20];
+    char errmsg[80];
     
     for( argc--, argv++; argc;  argc--, argv++)
     {

@@ -20,8 +20,8 @@
 */
 
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "util/errdef.h"    /* Error code definitions */
 
@@ -72,18 +72,66 @@ int handle_error( int sts, const char *mess1, const char *mess2 )
     {
         if (mess1==NULL) switch (sts)
             {
-            case FILE_OPEN_ERROR:  { mess1 = "Error opening file"; break;}
-            case FILE_READ_ERROR:  { mess1 = "Error reading file"; break;}
-            case FILE_WRITE_ERROR: { mess1 = "Error writing file"; break;}
-            case UNEXPECTED_EOF:   { mess1 = "End of file encountered"; break;}
-            case SYNTAX_ERROR:     { mess1 = "Syntax error"; break; }
-            case INVALID_DATA:     { mess1 = "Invalid data error"; break; }
-            case MISSING_DATA:     { mess1 = "Missing data"; break; }
-            case INCONSISTENT_DATA: {mess1 = "Inconsistent data"; break;}
-            case TOO_MUCH_DATA:    { mess1 = "Too much data"; break; }
-            case MEM_ALLOC_ERROR:  { mess1 = "Memory allocation error"; break; }
-            case INTERNAL_ERROR:   { mess1 = "Internal program error"; break;}
-            case OPERATION_ABORTED: { mess1 = "Aborted by user"; break;}
+            case FILE_OPEN_ERROR:
+            {
+                mess1 = "Error opening file";
+                break;
+            }
+            case FILE_READ_ERROR:
+            {
+                mess1 = "Error reading file";
+                break;
+            }
+            case FILE_WRITE_ERROR:
+            {
+                mess1 = "Error writing file";
+                break;
+            }
+            case UNEXPECTED_EOF:
+            {
+                mess1 = "End of file encountered";
+                break;
+            }
+            case SYNTAX_ERROR:
+            {
+                mess1 = "Syntax error";
+                break;
+            }
+            case INVALID_DATA:
+            {
+                mess1 = "Invalid data error";
+                break;
+            }
+            case MISSING_DATA:
+            {
+                mess1 = "Missing data";
+                break;
+            }
+            case INCONSISTENT_DATA:
+            {
+                mess1 = "Inconsistent data";
+                break;
+            }
+            case TOO_MUCH_DATA:
+            {
+                mess1 = "Too much data";
+                break;
+            }
+            case MEM_ALLOC_ERROR:
+            {
+                mess1 = "Memory allocation error";
+                break;
+            }
+            case INTERNAL_ERROR:
+            {
+                mess1 = "Internal program error";
+                break;
+            }
+            case OPERATION_ABORTED:
+            {
+                mess1 = "Aborted by user";
+                break;
+            }
             default:   
                 { 
                     if( INFO_ERROR_CONDITION(sts) )
