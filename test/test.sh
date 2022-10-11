@@ -1,7 +1,7 @@
 #!/bin/sh
 
 if [ -z $SNAPDIR ]; then
-SNAPDIR='../unix/bin'
+SNAPDIR='../linux/bin'
 fi
 
 mkdir -p out
