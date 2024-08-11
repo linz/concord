@@ -179,6 +179,7 @@ GDA2020 "Geodetic Datum of Australia 2020" ELLIPSOID GRS80 &
    ITRF2014 0 0 0 0 0 0 0 &
    RATES 2020 0 0 0 -0.00150379 -0.00118346 -0.00120716 0
 
+
 ! Note - ITRF to GDA94 transformations below use the IERS convention for the sign
 ! of the rotations. Often in Australia, the opposite convention is used. Parameters
 ! sourced from Dawson and Woods (2010) "ITRF to GDA94 coordinate transformations"
@@ -397,6 +398,7 @@ NZMG "New Zealand Map Grid" REF_FRAME NZGD1949 &
 NZMG_7PRM "New Zealand Map Grid (7 parameter transformation)" REF_FRAME NZGD1949_7PRM &
           PROJECTION NZMG &
           RANGE 1600000 4800000 3600000 7200000
+
 NZTM "New Zealand Transverse Mercator Projection" REF_FRAME NZGD2000 &
           PROJECTION TM 173.0 0.0 0.9996 1600000.0 10000000.0 1.0 &
           RANGE 500000 3500000 3500000 7500000
@@ -831,6 +833,7 @@ MGA2020-57 "MGA2020 zone 57" REF_FRAME GDA2020 &
           PROJECTION TM 159 0 0.9996 500000 10000000 1
 MGA2020-58 "MGA2020 zone 58" REF_FRAME GDA2020 &
           PROJECTION TM 165 0 0.9996 500000 10000000 1
+
 !===============================================================================
 !
 !  Deprecated codes for NZ cadastral projections, and cadastral links coordinate systems

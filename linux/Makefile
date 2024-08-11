@@ -84,7 +84,7 @@ all: bin/concord reference_files
 bin/concord: $(OBJECTS)
 	rm -rf bin
 	mkdir bin
-	$(CC) $(OBJECTS) -lm -o bin/concord
+	$(CC) $(OBJECTS) -static -lboost_filesystem -lboost_system -lm -o bin/concord
 
 reference_files:
 	rm -rf bin/config

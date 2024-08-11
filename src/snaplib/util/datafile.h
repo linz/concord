@@ -64,7 +64,7 @@ void  df_reset_data_file_loc( DATAFILE *d, datafile_loc *dl );
 /* The following functions should really be handled by the input string def .. */
 
 int df_skip_character( DATAFILE *d );
-int df_read_field( DATAFILE *d, char *field, int nfld );
+int df_read_field( DATAFILE *d, char *field, int nfld, const char *fieldname);
 int df_read_code( DATAFILE *d, char *field, int nfld );
 int df_read_int( DATAFILE *d, int *v );
 int df_read_short( DATAFILE *d, short *v );

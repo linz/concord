@@ -79,7 +79,9 @@ DATAFILE *df_open_data_file( const char *fname, const char *description )
 
     strncpy(msg,description,79);
     msg[79]=0;
-    for( char *c=msg; *c; c++ ){ if( *c == ' ' ) *c='_'; }
+    for( char *c=msg; *c; c++ ) {
+        if( *c == ' ' ) *c='_';
+    }
     int typelen=strlen(msg);
     if( typelen > 5 && strcmp(msg+typelen-5,"_file") == 0 ) msg[typelen-5]=0;
     record_filename(fname,msg);
@@ -93,7 +95,10 @@ DATAFILE *df_open_data_file( const char *fname, const char *description )
     {
         for( i = 0; i < nch; i++ )
         {
-            if( msg[i] == 0 || (msg[i] & '\x80')) { binary=1; break; }
+            if( msg[i] == 0 || (msg[i] & '\x80')) {
+                binary=1;
+                break;
+            }
         }
     }
     if( unicode )
@@ -217,7 +222,10 @@ int df_read_data_file( DATAFILE *d )
             while( 1 )
             {
                 char *start = d->inrec+offset;
-                if( ! fgets( start, d->maxreclen-offset, d->f )) { eof = 1; break; }
+                if( ! fgets( start, d->maxreclen-offset, d->f )) {
+                    eof = 1;
+                    break;
+                }
                 int len = strlen(start);
                 if( ! len ) break;
                 if( start[len-1] == '\n' ) break;
@@ -235,7 +243,9 @@ int df_read_data_file( DATAFILE *d )
             }
             // Trim whitespace
             int nch = strlen(line);
-            while( nch-- && ISSPACEZ(line[nch])) { line[nch] = 0; }
+            while( nch-- && ISSPACEZ(line[nch])) {
+                line[nch] = 0;
+            }
             offset = lineoffset + nch;
             // Check for line continuation
             if( nch >= 1 && line[nch] == d->continuation_char && ISSPACEZ(line[nch-1]))
@@ -249,7 +259,9 @@ int df_read_data_file( DATAFILE *d )
         }
         // Retrim in case continuation only adds blanks
         line = d->inrec;
-        while( offset > 0 && ISSPACEZ(line[offset])) { line[offset--] = 0; }
+        while( offset > 0 && ISSPACEZ(line[offset])) {
+            line[offset--] = 0;
+        }
     }
 
     d->inrecptr = d->lastrecptr = d->inrec;
@@ -285,16 +297,21 @@ input_string_def *df_input_string( DATAFILE *d )
 /* All return 1 if found and OK, 0 otherwise, for easy */
 /* combination in logical expression                   */
 
-int df_read_field( DATAFILE *d, char *field, int nfld )
+int df_read_field( DATAFILE *d, char *field, int nfld, const char *fieldname )
 {
-    char *s, *e;
+    char *s, *e, *s0;
+    int nfld0 = nfld;
 
     s = d->inrecptr;
     while( ISSPACEZ(*s) ) s++;
 
     d->lastrecptr = s;
 
-    if ( !*s ) { *field = 0; d->inrecptr = s; return 0; }
+    if ( !*s ) {
+        *field = 0;
+        d->inrecptr = s;
+        return 0;
+    }
 
     if( *s == d->quote_char )
     {
@@ -317,9 +334,29 @@ int df_read_field( DATAFILE *d, char *field, int nfld )
         d->inrecptr = e;
     }
 
-
+    s0=s;
     while( --nfld > 0 && s < e ) *field++ = *s++;
     *field = 0;
+
+    if( s < e )
+    {
+        char errbuf[120];
+        int nch=e-s0;
+        int nch0=nch;
+        int dots=0;
+        if( nch > 57)
+        {
+            nch=57;
+            dots=1;
+        }
+
+        if( fieldname )
+        {
+            sprintf(errbuf,"%s too long: %.*s%s (%d chars > max %d)",fieldname,nch,s0,dots ? "..." : "",nch0,nfld0);
+            df_data_file_error(d, TOO_MUCH_DATA, errbuf);
+        }
+        return 0;
+    }
 
     return 1;
 }
@@ -342,7 +379,7 @@ int df_skip_character( DATAFILE *d )
 int df_read_code( DATAFILE *d, char *field, int nfld )
 {
     int sts;
-    sts = df_read_field(d,field,nfld);
+    sts = df_read_field(d,field,nfld,0);
     if(sts) _strupr(field);
     return sts;
 }
@@ -353,7 +390,7 @@ int df_read_int( DATAFILE *d, int *v )
 {
     char field[30], chk[2];
     chk[0]=0;
-    if( !df_read_field( d, field, 30 ) ) return 0;
+    if( !df_read_field( d, field, 30,0) ) return 0;
     if( sscanf( field, "%d%1s", v, chk ) < 1 || chk[0] ) return 0;
     return 1;
 }
@@ -364,7 +401,7 @@ int df_read_short( DATAFILE *d, short *v )
     char field[30], chk[2];
     short i;
     chk[0]=0;
-    if( !df_read_field( d, field, 30 ) ) return 0;
+    if( !df_read_field( d, field, 30,0) ) return 0;
     if( sscanf( field, "%hd%1s", &i, chk ) < 1 || chk[0] ) return 0;
     (*v) = i;
     return 1;
@@ -375,7 +412,7 @@ int df_read_long( DATAFILE *d, long *v )
 {
     char field[30], chk[2];
     chk[0]=0;
-    if( !df_read_field( d, field, 30 ) ) return 0;
+    if( !df_read_field( d, field, 30,0) ) return 0;
     if( sscanf( field, "%ld%1s", v, chk ) < 1 || chk[0] ) return 0;
     return 1;
 }
@@ -384,7 +421,7 @@ int df_read_double( DATAFILE *d, double *v )
 {
     char field[30], chk[2];
     chk[0]=0;
-    if( !df_read_field( d, field, 30 ) ) return 0;
+    if( !df_read_field( d, field, 30,0) ) return 0;
     if( sscanf( field, "%lf%1s", v, chk ) < 1 || chk[0] ) return 0;
     return 1;
 }
@@ -418,9 +455,10 @@ int df_read_hpangle( DATAFILE *d, double *v )
     int deg, min;
     double sec, den;
 
-    if( !df_read_field( d, field, 30 ) ) return 0;
+    if( !df_read_field( d, field, 30,0) ) return 0;
 
-    deg = min = 0; sec = 0.0;
+    deg = min = 0;
+    sec = 0.0;
 
     for( f = field; *f != '.'; f++ )
     {
@@ -459,7 +497,11 @@ int df_read_rest( DATAFILE *d, char *line, int nlin )
     d->lastrecptr = d->inrecptr;
     s = d->inrecptr;
     while ( ISSPACEZ(*s) ) s++;
-    if( !*s ) { *line = 0; d->inrecptr = s; return 0; }
+    if( !*s ) {
+        *line = 0;
+        d->inrecptr = s;
+        return 0;
+    }
     nlin--;
     for( ; nlin > 0 && *s ; s++ )
     {
@@ -550,7 +592,7 @@ int main( int argc, char *argv[] )
 
     while( read_data_file(in) == OK )
     {
-        df_read_field(in,field,20);
+        df_read_field(in,field,20,0);
         printf("\n\nLine %ld: fields %s\n",line_number(in),field);
         _strupr( field );
         for( f=field; *f; f++ )
@@ -558,35 +600,43 @@ int main( int argc, char *argv[] )
             sts = 1;
             switch(*f)
             {
-            case 'F': sts = df_read_field( in, data, 20 );
+            case 'F':
+                sts = df_read_field( in, data, 20,0);
                 printf("Status %d: Field %s\n",(int)sts,data);
                 break;
 
-            case 'I': sts = read_int( in, &ival );
+            case 'I':
+                sts = read_int( in, &ival );
                 printf("Status %d: Integer %d\n",(int) sts, ival);
                 break;
 
-            case 'L': sts = read_long( in, &lval );
+            case 'L':
+                sts = read_long( in, &lval );
                 printf("Status %d: Long %ld\n",(int) sts, lval);
                 break;
 
-            case 'D': sts = read_double( in, &dval );
+            case 'D':
+                sts = read_double( in, &dval );
                 printf("Status %d: Double %lf\n",(int) sts,dval);
                 break;
 
-            case 'A': sts = read_dmsangle( in, &dval );
+            case 'A':
+                sts = read_dmsangle( in, &dval );
                 printf("Status %d: DMS %lf\n",(int) sts,dval);
                 break;
 
-            case 'H': sts = read_hpangle( in, &dval );
+            case 'H':
+                sts = read_hpangle( in, &dval );
                 printf("Status %d: HP %lf\n",(int) sts,dval);
                 break;
 
-            case 'R': sts = read_rest( in, rest, 80 );
+            case 'R':
+                sts = read_rest( in, rest, 80 );
                 printf("Status %d: Rest %s\n",(int) sts,rest);
                 break;
 
-            case 'B': reread_field( in );
+            case 'B':
+                reread_field( in );
                 break;
 
             default:
