@@ -1,3 +1,16 @@
+# DEPRECATED AND ARCHIVED
+
+This repository is deprecated and archived. `concord` is now built directly from
+the [linz/snap](https://github.com/linz/snap) repository, alongside `snaplib` and
+[linz-coordsys](https://github.com/linz/linz-coordsys), instead of being
+maintained as a separate periodic snapshot here.
+
+For a Windows build, see `build_concord_mingw_package.py` in `linz/snap`, which
+cross-compiles `concord.exe` and packages it with the `linz-coordsys` data files.
+It should be straightforward to modify - for example, adding a `-linux` flag - to
+replicate this repository's native Linux build and packaging, if/when that is
+required.
+
 # Concord: coordinate conversion program
 
 Program to convert coordinates between the New Zealand coordinate systems.  
